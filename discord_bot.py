@@ -14,6 +14,7 @@ import time
 import requests
 from PyDictionary import PyDictionary
 import math
+from pprint import pprint
 
 dictionary = PyDictionary()
 
@@ -25,7 +26,8 @@ client = commands.Bot(command_prefix='+', intents=intents)
 current_message_user = ''
 
 def generate_deck():
-    suits = ['spades'
+    suits = ['spades']
+    return None
 
 
 @client.event
@@ -63,7 +65,13 @@ async def on_typing(channel, user, when):
 async def _eval(ctx, *args):
     equation = ''.join(args).replace(' ', '')
     print(equation)
-    await ctx.send(cam_eval.do_math(equation))
+
+    result = cam_eval.do_math(equation)
+
+    if result == None:
+        await ctx.send('Format the equation, may be missing signs, make sure there are multiplications attached to all parenthesis ex : 2(1+2) X doesnt work')
+    else:
+        await ctx.send(result)
 
 
 @client.command(aliases=['capital'])
@@ -489,6 +497,6 @@ async def russian_roulette(ctx):
 
 @client.command(aliases=['gofish'])
 async def go_fish(ctx):
-    alist
+    return None
 
-client.run('Nzg2ODA3OTkyOTkzMzE2ODk0.X9LyCw.e9CoKH-LuYhsFLqu3yqhiW0VkC4')
+client.run() ## make sure to delete before committing

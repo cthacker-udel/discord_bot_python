@@ -6,9 +6,11 @@ def do_math(expression: str)->int:
         if eachletter.isdigit() or eachletter in valid_symbols:
             continue
         else:
+            print('Reached none')
             return None
     #emptystring check
     if len(expression) == 0:
+        print('Reached none')
         return None
     #Integer literal
     if '(' not in expression and ')' not in expression and '+' not in expression and '-' not in expression and '*' not in expression:
@@ -19,6 +21,7 @@ def do_math(expression: str)->int:
     for eachoperator in operators:
         for eachoperator2 in operators:
             if (eachoperator+eachoperator2) in expression:
+                print('Reached none')
                 return None
     for eachletter in expression:
         if eachletter.isdigit():
@@ -41,12 +44,14 @@ def do_math(expression: str)->int:
                         del operator_stack[-1]
                     del operator_stack[-1]
                 except:
+                    print('Reached none')
                     return None
     if len(number) > 0:
         output_stack.append(number)
     if len(operator_stack) > 0:
         while len(operator_stack) > 0:
             if pop_list(operator_stack) == '(':
+                print('Reached none')
                 return None
             output_stack.append(pop_list(operator_stack))
             del operator_stack[-1]
@@ -91,4 +96,6 @@ def convert_infix(output_stack:str)->int:
                     output_stack[i] = int(second_number) * int(first_number)
                     output_stack = [x for x in output_stack if x != '']
                     break
+        if len(output_stack) == 2 and '+' not in output_stack and '-' not in output_stack and '*' not in output_stack:
+            return None
     return output_stack[0] if len(output_stack) == 1 else None                      
