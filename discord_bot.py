@@ -4,6 +4,7 @@ import capitals
 import cam_math
 import cam_eval
 from discord.ext import commands
+import threading
 from discord import File
 import random
 import datetime
@@ -15,10 +16,34 @@ import requests
 from PyDictionary import PyDictionary
 import math
 from pprint import pprint
+import asyncio
 
 dictionary = PyDictionary()
 
 # print(dictionary.meaning('indentation')['Noun'])
+
+exitFlag = 0
+
+class Reminder(threading.Thread):
+
+    def __init(self,reminder,counter):
+        threading.Thread.__init__(self)
+        self.reminder = reminder
+        self.counter = counter
+    def run(self):
+        print('Starting reminder : {}'.format(self.reminder))
+        run_reminder(self.reminder,1,self.counter)
+
+
+def run_reminder(reminder,counter,delay):
+
+    while counter:
+        if exitFlag:
+            reminder.exit()
+        time.sleep(delay*60)
+        counter -= 1
+    return reminder
+
 
 
 intents = discord.Intents.default()
@@ -28,6 +53,13 @@ current_message_user = ''
 def generate_deck():
     suits = ['spades']
     return None
+
+
+@client.command(aliases=['remindv2'])
+async def run_reminder(ctx,time,*args):
+    reminder = ''.join(args)
+    await asyncio.sleep(int(time)*60)
+    await ctx.send(reminder)
 
 
 @client.event
@@ -499,4 +531,4 @@ async def russian_roulette(ctx):
 async def go_fish(ctx):
     return None
 
-client.run() ## make sure to delete before committing
+client.run('') ## make sure to delete before committing
