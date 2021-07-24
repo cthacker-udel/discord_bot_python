@@ -24,6 +24,9 @@ intents = discord.Intents.default()
 client = commands.Bot(command_prefix='+', intents=intents)
 current_message_user = ''
 
+def generate_deck():
+    suits = ['spades'
+
 
 @client.event
 async def on_ready():
@@ -484,5 +487,8 @@ async def russian_roulette(ctx):
     else:
         await ctx.send('YOU ALIVE')
 
+@client.command(aliases=['gofish'])
+async def go_fish(ctx):
+    alist
 
-client.run('Nzg2ODA3OTkyOTkzMzE2ODk0.X9LyCw.OMKhTYhWRMBPFn5e4V_cOeOXwRI')
+client.run('Nzg2ODA3OTkyOTkzMzE2ODk0.X9LyCw.e9CoKH-LuYhsFLqu3yqhiW0VkC4')
