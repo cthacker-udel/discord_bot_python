@@ -24,38 +24,23 @@ dictionary = PyDictionary()
 
 exitFlag = 0
 
-class Reminder(threading.Thread):
-
-    def __init(self,reminder,counter):
-        threading.Thread.__init__(self)
-        self.reminder = reminder
-        self.counter = counter
-    def run(self):
-        print('Starting reminder : {}'.format(self.reminder))
-        run_reminder(self.reminder,1,self.counter)
-
-
-def run_reminder(reminder,counter,delay):
-
-    while counter:
-        if exitFlag:
-            reminder.exit()
-        time.sleep(delay*60)
-        counter -= 1
-    return reminder
-
-
-
 intents = discord.Intents.default()
 client = commands.Bot(command_prefix='+', intents=intents)
 current_message_user = ''
 
 def generate_deck():
-    suits = ['spades']
-    return None
+    suits = ['spades','diamonds','hearts','clubs']
+    ranks = [1,2,3,4,5,6,7,8,9,10,'Jack','Queen','King','Ace']
+
+    deckArr = []
+
+    for eachsuit in suits:
+        for eachrank in ranks:
+            deckArr.append(str(eachrank) + ' of ' + eachsuit.capitalize())
+    return deckArr
 
 
-@client.command(aliases=['remindv2'])
+@client.command(aliases=['remind'])
 async def run_reminder(ctx,time,*args):
     reminder = ''.join(args)
     await asyncio.sleep(int(time)*60)
@@ -120,32 +105,39 @@ async def _capitals(ctx):
 
 @client.command(aliases=['primequiz'])
 async def _prime_quiz(ctx):
-    random_length = random.choice([x for x in range(1, 10)])
-    emptystring = ''
-    front_digits = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    back_digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    emptystring += str(random.choice(back_digits))
-    for i in range(random_length - 1):
+    score = 0
+    while(True):
+        random_length = random.choice([x for x in range(1, 10)])
+        emptystring = ''
+        back_digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         emptystring += str(random.choice(back_digits))
-    emptystring = int(emptystring)
-    await ctx.send("Guess if {} is prime -> Answer : Prime \t Composite".format(emptystring))
-    res = cam_math.is_prime(emptystring)
-    Message = await client.wait_for('message', check=lambda message: message.author == ctx.author)
-    if Message.content.lower() == 'prime' and res:
-        await ctx.send("The number was prime, and you guessed prime, so you are correct!!")
-    elif Message.content.lower() == 'prime' and not res:
-        await ctx.send("The number was NOT prime, and you guessed prime, so you are wrong!!")
-    elif Message.content.lower() == 'composite' and res:
-        await ctx.send("The number was prime, and you guessed composite, so you are wrong!!")
-    elif Message.content.lower() == 'composite' and not res:
-        await ctx.send("The number was not prime, and you guessed composite, so you are correct!!")
-    else:
-        await ctx.send("Wrong input")
+        for i in range(random_length - 1):
+            emptystring += str(random.choice(back_digits))
+        emptystring = int(emptystring)
+        await ctx.send("Guess if {} is prime -> Answer : Prime \t Composite".format(emptystring))
+        res = cam_math.is_prime(emptystring)
+        Message = await client.wait_for('message', check=lambda message: message.author == ctx.author)
+        if Message.content.lower() == 'prime' and res:
+            score += 1
+            await ctx.send("The number was prime, and you guessed prime, so you are correct!! [Current Score : {}]".format(score))
+        elif Message.content.lower() == 'prime' and not res:
+            score -= 1
+            await ctx.send("The number was NOT prime, and you guessed prime, so you are wrong!! [Current Score : {}]".format(score))
+        elif Message.content.lower() == 'composite' and res:
+            score -= 1
+            await ctx.send("The number was prime, and you guessed composite, so you are wrong!! [Current Score : {}]".format(score))
+        elif Message.content.lower() == 'composite' and not res:
+            score += 1
+            await ctx.send("The number was not prime, and you guessed composite, so you are correct!! [Current Score : {}]".format(score))
+        else:
+            await ctx.send("Wrong input, exiting program [Current Score : {}]".format(score))
+            break
 
 
 @client.event
 async def on_message(message):
     # await message.author.send('@'+message.author.name)
+
     if message.author == client.user:
         return
     await client.process_commands(message)
@@ -444,6 +436,39 @@ async def _function(ctx):
     await ctx.send("Nothing")
 
 
+def is_flush(hand):
+
+    suits = []
+
+    if len(hand) < 5:
+        print('Not enough cards to make a flush combination possible')
+        return False
+
+    for eachcard in hand:
+        suit = eachcard.split(' ')[2]
+        suits.append(suit)
+
+    for eachsuit in suits:
+        if suits.count(eachsuit) == 5:
+            return True
+    return False
+
+
+
+def poker_combos(hand):
+
+    for eachcard in hand:
+        return False
+
+
+
+@client.command(aliases=['poker'])
+async def poker(ctx):
+    deck = generate_deck()
+
+
+
+"""
 @client.command(aliases=['remind'])
 async def _remind(ctx, the_time, *args):
     the_message = ' '.join(args)
@@ -453,7 +478,7 @@ async def _remind(ctx, the_time, *args):
         the_time -= 60
     time.sleep(the_time)
     await ctx.send('@{} , here is your reminder : {}'.format(ctx.message.author.name, the_message))
-
+"""
 
 @client.command(aliases=['add'])
 async def _add(ctx, num1, num2):
@@ -531,4 +556,4 @@ async def russian_roulette(ctx):
 async def go_fish(ctx):
     return None
 
-client.run('') ## make sure to delete before committing
+client.run('Nzg2ODA3OTkyOTkzMzE2ODk0.X9LyCw.ictUYS5WKaOrnk3KN37dnQ2kyUg') ## make sure to delete before committing
