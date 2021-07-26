@@ -17,6 +17,7 @@ from PyDictionary import PyDictionary
 import math
 from pprint import pprint
 import asyncio
+from tokenstorage import get_token
 
 dictionary = PyDictionary()
 
@@ -463,7 +464,7 @@ def poker_combos(hand):
 
 
 @client.command(aliases=['poker'])
-async def poker(ctx):
+async def _poker(ctx):
     deck = generate_deck()
 
 
@@ -556,4 +557,4 @@ async def russian_roulette(ctx):
 async def go_fish(ctx):
     return None
 
-client.run('Nzg2ODA3OTkyOTkzMzE2ODk0.X9LyCw.ictUYS5WKaOrnk3KN37dnQ2kyUg') ## make sure to delete before committing
+client.run(get_token()) ## make sure to delete before committing
