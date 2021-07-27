@@ -135,13 +135,37 @@ async def _prime_quiz(ctx):
             break
 
 
+onMessageSender = ''
+
+
 @client.event
 async def on_message(message):
+
+    await client.process_commands(message)
     # await message.author.send('@'+message.author.name)
 
-    if message.author == client.user:
-        return
-    await client.process_commands(message)
+    #channel = message.channel
+
+    #if message.content[0] == '+':
+    #    await client.process_commands(message)
+    #    await channel.send('@{} {}'.format(message.author.id,message.content))
+
+    #if message.author == client.user:
+    #    await channel.send('msg2')
+        #await channel.send('@{} {}'.format(onMessageSender,message.content))
+        #await client.process_commands(message)
+    #else:
+        #await client.process_commands(message)
+    #    await channel.send('msg1')
+
+
+######################
+# SUCCESSFUL @MENTION
+######################
+
+@client.command(aliases=['test2'],pass_context=True)
+async def test(ctx):
+    await ctx.send('Test {}'.format(ctx.message.author.mention))
 
 
 @client.command(aliases=['numguess', 'guess'])
@@ -184,7 +208,7 @@ async def _alexa_jokes(ctx):
     randomkey = random.choice(keys)
     for i in range(1):
         await ctx.send(randomkey)
-        time.sleep(5)
+        await asyncio.sleep(3)
     await ctx.send(adict[randomkey])
 
 
@@ -229,13 +253,13 @@ async def _slots(ctx):
     numbers = [x for x in range(1, 8)]
     result = '{}{}{}'.format(random.choice(numbers), random.choice(numbers), random.choice(numbers))
     if result == '777':
-        await ctx.send('{} YOU WON!'.format(result))
+        await ctx.send('{} {} YOU WON!'.format(ctx.message.author.mention,result))
     elif result.count('7') == 2:
-        await ctx.send('{} So close!'.format(result))
+        await ctx.send('{} {} So close!'.format(ctx.message.author.mention,result))
     elif result.count('7') == 1:
-        await ctx.send('{} almost..'.format(result))
+        await ctx.send('{} {} almost..'.format(ctx.message.author.mention,result))
     else:
-        await ctx.send('{} You lost'.format(result))
+        await ctx.send('{} {} You lost'.format(ctx.message.author.mention,result))
 
 
 @client.command(aliases=['draw'])
