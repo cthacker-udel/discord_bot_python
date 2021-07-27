@@ -520,6 +520,36 @@ def is_straight(hand:[str])->[int]:
             return theMax
     return [-1]
 
+def royal_flush(hand):
+
+    cards = []
+
+    for eachcard in hand:
+        if 'Jack' in eachcard or 'Queen' in eachcard or 'King' in eachcard or 'Ace' in eachcard:
+            cards.append(eachcard)
+
+    if len(cards) >= 5:
+        suits = []
+        for eachcard in cards:
+            suit = eachcard.split(' ')[2]
+            if suit not in suits:
+                suits.append(suit)
+
+        pairs = []
+        for eachsuit in suits:
+            for eachcard in cards:
+                if eachsuit in eachcard: ## check if suit is in eachcard
+                    if eachcard not in pairs: ## check if eachcard is not in pairs
+                        pairs.append(eachcard)
+            if len(pairs) == 5:
+                return True
+            else:
+                pairs = []
+        return False
+    else:
+        return False
+
+
 
 
 def poker_combos(hand):
