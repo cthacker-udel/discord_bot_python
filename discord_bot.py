@@ -437,7 +437,7 @@ async def _function(ctx):
     await ctx.send("Nothing")
 
 
-def is_flush(hand):
+def is_flush(hand:[str])->[int]:
 
     suits = []
 
@@ -445,14 +445,80 @@ def is_flush(hand):
         print('Not enough cards to make a flush combination possible')
         return False
 
+    maxSuit = ''
+
     for eachcard in hand:
         suit = eachcard.split(' ')[2]
         suits.append(suit)
 
+    theCards = []
+    ranks = {'Jack': 11, 'Queen': 12, 'King': 13, 'Ace': 14}
+
+
     for eachsuit in suits:
         if suits.count(eachsuit) == 5:
-            return True
-    return False
+            maxSuit = eachsuit
+            for eachcard in hand:
+                suit = eachcard.split(' ')[2]
+                rank = eachcard.split(' ')[0]
+                if suit == maxSuit:
+                    try:
+                        rank = int(rank)
+                    except Exception as e:
+                        rank = ranks[rank]
+                    theCards.append(rank)
+            return theCards if len(theCards) > 0 else [-1]
+    return [-1]
+
+def is_straight(hand:[str])->[int]:
+
+    ranks = []
+
+    #suits = ['spades','diamonds','hearts','clubs']
+    #ranks = [1,2,3,4,5,6,7,8,9,10,'Jack','Queen','King','Ace']
+
+    #for eachsuit in suits:
+    #    for eachrank in ranks:
+    #        deckArr.append(str(eachrank) + ' of ' + eachsuit.capitalize())
+    #return deckArr
+
+    if len(hand) < 5:
+        print('Not enough cards to make a straight combination possible')
+        return False
+
+    special_ranks = {'Jack': 11,'Queen': 12,'King': 13,'Ace': 14}
+
+    for eachcard in hand:
+        split_hand = eachcard.split(' ')
+        rank = split_hand[0]
+        try:
+            rank = int(rank)
+        except Exception as e:
+            rank = special_ranks[rank]
+        ranks.append(rank)
+
+    distinct_ranks = []
+
+    for eachrank in ranks:
+        if eachrank not in distinct_ranks:
+            distinct_ranks.append(eachrank)
+
+    ct = 0
+
+    theMax = 0
+
+    for i in range(len(distinct_ranks)-4):
+        for j in range(len(distinct_ranks)-1):
+          if abs(distinct_ranks[j+1] - distinct_ranks[j]) == 1 or ((distinct_ranks[j+1] == 14 and distinct_ranks[j] == 1) or (distinct_ranks[j+1] == 1 and distinct_ranks[j] == 14)):
+            ct += 1
+            theMax = max(theMax,distinct_ranks[j+1])
+          else:
+            ct = 0
+            theMax = 0
+            break
+        if ct == 4:
+            return theMax
+    return -1
 
 
 
