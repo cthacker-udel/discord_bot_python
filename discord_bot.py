@@ -518,14 +518,17 @@ def is_straight(hand:[str])->[int]:
             break
         if ct == 4:
             return theMax
-    return -1
+    return [-1]
 
 
 
 def poker_combos(hand):
 
-    for eachcard in hand:
+    if is_straight(hand) != [-1]:
         return False
+    elif is_flush(hand) != [1]:
+        return False
+
 
 
 
