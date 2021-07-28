@@ -935,6 +935,8 @@ def showdown(player_hand,computer_hand):
 
     player_strength = poker_combos(player_hand)
     computer_strength = poker_combos(computer_hand)
+    player_cards = []
+    computer_cards = []
 
     ## 1 - player win
     ## 2 - computer win
@@ -945,7 +947,64 @@ def showdown(player_hand,computer_hand):
     elif computer_strength > player_strength:
         return 2
     else:
-        ## highcard showdown
+        if player_strength == 9 and computer_strength == 9:
+            return 3
+        elif player_strength == 8 and computer_strength == 8:
+            player_cards = get_straight_cards(player_hand)
+            computer_cards = get_straight_cards(computer_hand)
+            player_high_card,player_cards = deal_high_card(player_cards)
+            computer_high_card,computer_cards = deal_high_card(computer_cards)
+            while len(player_cards) > 0:
+                if player_high_card > computer_high_card:
+                    return 1
+                elif computer_high_card > player_high_card:
+                    return 2
+                else:
+                    player_high_card,player_cards = deal_high_card(player_cards)
+                    computer_high_card,computer_cards = deal_high_card(computer_cards)
+            while len(player_hand) > 0:
+                player_high_card,player_hand = deal_high_card(player_hand)
+                computer_high_card,computer_hand = deal_high_card(computer_hand)
+                if player_high_card > computer_high_card:
+                    return 1
+                elif computer_high_card > player_high_card:
+                    return 2
+                else:
+                    player_high_card,player_hand = deal_high_card(player_hand)
+                    computer_high_card,computer_hand = deal_high_card(computer_hand)
+            if player_high_card > computer_high_card:
+                return 1
+            elif computer_high_card > player_high_card:
+                return 2
+            else:
+                return 3
+        elif player_strength == 7 and computer_strength == 7:
+            player_card = get_four_of_a_kind_cards(player_hand)
+            computer_card = get_four_of_a_kind_cards(computer_hand)
+            if player_card > computer_card:
+                return 1
+            elif player_card < computer_card:
+                return 2
+            else:
+                player_high_card = ''
+                computer_high_card = ''
+                while len(player_hand) > 0:
+                    player_high_card,player_hand = deal_high_card(player_hand)
+                    computer_high_card,computer_hand = deal_high_card(computer_hand)
+                    if player_high_card > computer_high_card:
+                        return 1
+                    elif computer_high_card > player_high_card:
+                        return 2
+                    else:
+                        player_high_card, player_hand = deal_high_card(player_hand)
+                        computer_high_card, computer_hand = deal_high_card(computer_hand)
+                if player_high_card > computer_high_card:
+                    return 1
+                elif computer_high_card > player_high_card:
+                    return 2
+                else:
+                    return 3
+
 
 
 
