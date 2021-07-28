@@ -935,6 +935,7 @@ async def _poker(ctx):
             if first_turn:
                 if len(table_cards) == 5:
                     ## showdown between player_hand and computer_hand
+                    print('showdown between player hand and computer_hand')
                 card,deck = deal(deck)
                 player_hand += [card]
                 computer_hand += [card]
@@ -990,8 +991,43 @@ async def _poker(ctx):
                         break
                     else:
                         ## generate random number to determine if to call or fold
+                        rand_choice = random.randint(0,1000000)
+                        if rand_choice % 2 == 0 or rand_choice % 3 == 0:
+                            await ctx.send('\n{} calls the raise of {} chips\n'.format(client.user.display_name, raise_amt))
+                            pot += raise_amt
+                            computer_chips -= raise_amt
+                            raised = False
+                            break
+                        else:
+                            await ctx.send('\n{} folds\n'.format(client.user.display_name))
+                            if computer_wins == 0:
+                                computer_wins = 0
+                                player_chips += pot
+                            else:
+                                computer_wins -= 1
+                                player_chips += pot
+                            player_wins += 1
+                            break
                 else:
                     ## generate random number to determine if to call or fold
+                    rand_choice = random.randint(0, 1000000)
+                    if rand_choice % 2 == 0 or rand_choice % 3 == 0:
+                        await ctx.send('\n{} calls the raise of {} chips\n'.format(client.user.display_name, raise_amt))
+                        pot += raise_amt
+                        computer_chips -= raise_amt
+                        raised = False
+                        break
+                    else:
+                        await ctx.send('\n{} folds\n'.format(client.user.display_name))
+                        if computer_wins == 0:
+                            computer_wins = 0
+                            player_chips += pot
+                        else:
+                            computer_wins -= 1
+                            player_chips += pot
+                        player_wins += 1
+                        break
+
 
             if message == 2:
                 ## player called
