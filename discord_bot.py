@@ -1416,6 +1416,19 @@ async def _poker(ctx):
             if first_turn:
                 if len(table_cards) == 5:
                     ## showdown between player_hand and computer_hand
+                    showdown(player_hand,computer_hand)
+                    if showdown == 1:
+                        await ctx.send('\n{} WINS {} chips!\n'.format(ctx.message.author.mention,pot))
+                        player_chips += pot
+
+                    elif showdown == 2:
+                        await ctx.send('\n WINS {} chips!!\n'.format(client.user.display_name, pot))
+                        computer_chips += pot
+                    else:
+                        await ctx.send('\n TIE! Both {} and {} win {} chips!\n'.format(ctx.message.author.mention,client.user.display_name,pot // 2))
+                        player_chips += pot // 2
+                        computer_chips += pot // 2
+                    break
                     print('showdown between player hand and computer_hand')
                 card,deck = deal(deck)
                 player_hand += [card]
