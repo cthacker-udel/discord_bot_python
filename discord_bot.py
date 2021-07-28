@@ -944,10 +944,40 @@ async def _poker(ctx):
                     print('showdown between player hand and computer_hand')
                 card,deck = deal(deck)
                 player_hand += [card]
+                await ctx.send('Dealing to {}\'s hand'.format(ctx.message.author.mention))
                 computer_hand += [card]
+                await ctx.send('Dealing to {}\'s hand'.format(client.user.display_name))
                 table_cards += [card]
                 await display_table_cards(ctx, table_cards)
                 await display_player_hand(ctx, player_hand)
+
+            if raised:
+                await ctx.send('\n{} must call the raise of {} chips or fold\n'.format(ctx.message.author.mention,raise_amt))
+                await ctx.send('\n------------- CHOICES -------------\n1)Call\n2)Fold')
+                msg = await client.wait_for('message', check=lambda message: message.author == ctx.author)
+                try:
+                    msg = int(msg.content)
+                    if msg == 1:
+                        if player_chips < raise_amt:
+                            pot += player_chips
+                            player_chips = 0
+                        else:
+                            pot += raise_amt
+                            player_chips -= raise_amt
+                        raised = False
+                    else:
+                        await ctx.send('\n{} folds\n'.format(ctx.message.author.mention))
+                        folded = True
+                        if player_wins == 0:
+                            player_wins = 0
+                        else:
+                            player_wins -= 1
+                        computer_wins += 1
+                        computer_chips += pot
+                        break
+                except ValueError as e:
+                    await ctx.send('\nEnter valid input\n')
+
             while True:
                 await ctx.send("\n------------- CHOICES -------------\n1)Fold\n2)Call\n3)Raise")
                 message = await client.wait_for('message',check=lambda message : message.author == ctx.author)
@@ -978,10 +1008,12 @@ async def _poker(ctx):
                     try:
                         raise_amt = int(amt.content)
                         player_chips -= raise_amt
+                        pot += raise_amt
+                        break
                     except Exception as e:
                         await ctx.send("\n----- ERROR INVALID INPUT -----\n")
                         continue
-                await ctx.send("\n{} raises {} chips".format(ctx.message.author.mention,amt))
+                await ctx.send("\n{} raises {} chips".format(ctx.message.author.mention,raise_amt))
                 raised = True
 
 
@@ -998,6 +1030,7 @@ async def _poker(ctx):
                         pot += raise_amt
                         computer_chips -= raise_amt
                         raised = False
+                        first_turn = True
                     else:
                         ## generate random number to determine if to call or fold
                         rand_choice = random.randint(0,1000000)
@@ -1006,6 +1039,7 @@ async def _poker(ctx):
                             pot += raise_amt
                             computer_chips -= raise_amt
                             raised = False
+                            first_turn = True
                         else:
                             await ctx.send('\n{} folds\n'.format(client.user.display_name))
                             if computer_wins == 0:
@@ -1038,9 +1072,7 @@ async def _poker(ctx):
                         folded = True
                         ## make loss variable to exit out of loop
                         break
-
-
-            if message == 2:
+            elif message == 2:
                 ## player called
 
                 ## decide if to fold
@@ -1109,6 +1141,7 @@ async def _poker(ctx):
                     computer_chips -= raise_amt
                     pot += raise_amt
                     raised = True
+                    first_turn = True
                 else:
                     rand_choice = random.randint(0,1000000)
                     if rand_choice % 2 == 0 or rand_choice % 3 == 0:
@@ -1118,6 +1151,7 @@ async def _poker(ctx):
                         computer_chips -= raise_amt
                         pot += raise_amt
                         raised = True
+                        first_turn = True
                     else:
                         await ctx.send('\n{} folds\n'.format(client.user.display_name))
                         if computer_wins == 0:
