@@ -817,7 +817,7 @@ async def _poker(ctx):
     player_chips = 0
     computer_chips = random.randint(10000,10000000)
 
-    await ctx.send('{} How many chips do you wish to enter into the poker arena with?'.format(ctx.message_author.mention))
+    await ctx.send('{} How many chips do you wish to enter into the poker arena with?'.format(ctx.message.author.mention))
 
     while True:
         message = await client.wait_for('message', check=lambda message: message.author == ctx.author)
@@ -838,19 +838,21 @@ async def _poker(ctx):
         await ctx.send('-----------------------------------------------------------------------------------------------------\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tROUND {}\n-----------------------------------------------------------------------------------------------------\n'.format(rounds))
 
         end_game = False
-        if rounds > 0:
+        if rounds > 1:
             while True:
                 await ctx.send('Continue Poker? 1) Yes 2) No')
-                msg = ctx.wait_for('message', check=lambda message : message.author == ctx.author)
+                msg = await client.wait_for('message', check=lambda message : message.author == ctx.author)
                 try:
-                    msg = int(msg)
+                    msg = int(msg.content)
                     if msg == 2:
                         end_game = True
                         break
                     else:
                         end_game = False
                         break
-                except Exception as e:
+                except asyncio.TimeoutError as e:
+                    await ctx.send('Enter input -- Timeout Error')
+                except ValueError as e:
                     await ctx.send('Enter valid input')
 
         if end_game:
@@ -861,6 +863,7 @@ async def _poker(ctx):
         pot = 0
         player_raised = False
         computer_raised = False
+        folded = False
 
         ## Pre-Round configuration
         """
@@ -911,14 +914,14 @@ async def _poker(ctx):
 
         while True:
             await ctx.send("\n----------- PLAYER PLACE BET [Current Chip Amount : {}]".format(player_chips))
-            bets = ctx.wait_for('message', check=lambda message : message.author == ctx.author)
+            bets = await client.wait_for('message', check=lambda message : message.author == ctx.author)
             try:
-                bets = int(bets)
+                bets = int(bets.content)
                 player_chips -= bets
                 pot += bets
                 break
             except Exception as e:
-                ctx.send("\n--------- ERROR : INVALID INPUT ---------\n")
+                await ctx.send("\n--------- ERROR : INVALID INPUT ---------\n")
                 continue
 
 
@@ -932,6 +935,9 @@ async def _poker(ctx):
 
 
         while True:
+
+            await ctx.send('\n------------STATS------------\n-- POT : {}                     --'.format(pot))
+
             if first_turn:
                 if len(table_cards) == 5:
                     ## showdown between player_hand and computer_hand
@@ -940,11 +946,13 @@ async def _poker(ctx):
                 player_hand += [card]
                 computer_hand += [card]
                 table_cards += [card]
+                await display_table_cards(ctx, table_cards)
+                await display_player_hand(ctx, player_hand)
             while True:
                 await ctx.send("\n------------- CHOICES -------------\n1)Fold\n2)Call\n3)Raise")
                 message = await client.wait_for('message',check=lambda message : message.author == ctx.author)
                 try:
-                    message = int(message)
+                    message = int(message.content)
                     break
                 except Exception as e:
                     await ctx.send("\n------------ Enter valid value ----------\n")
@@ -957,6 +965,7 @@ async def _poker(ctx):
                     player_wins -= 1
                     computer_chips += pot
                 computer_wins += 1
+                folded = True
                 break
             elif message == 2:
                 ## call
@@ -965,14 +974,15 @@ async def _poker(ctx):
                 ## raise
                 await ctx.send("\nHow many chips do you want to raise?[Current Amount : {}]".format(player_chips))
                 while True:
-                    amt = ctx.wait_for('message',check= lambda message : message.author == ctx.author)
+                    amt = await client.wait_for('message',check= lambda message : message.author == ctx.author)
                     try:
-                        amt = int(amt)
-                        player_chips -= amt
+                        raise_amt = int(amt.content)
+                        player_chips -= raise_amt
                     except Exception as e:
-                        ctx.send("\n----- ERROR INVALID INPUT -----\n")
+                        await ctx.send("\n----- ERROR INVALID INPUT -----\n")
                         continue
                 await ctx.send("\n{} raises {} chips".format(ctx.message.author.mention,amt))
+                raised = True
 
 
             ### Computer's turn
@@ -988,7 +998,6 @@ async def _poker(ctx):
                         pot += raise_amt
                         computer_chips -= raise_amt
                         raised = False
-                        break
                     else:
                         ## generate random number to determine if to call or fold
                         rand_choice = random.randint(0,1000000)
@@ -997,7 +1006,6 @@ async def _poker(ctx):
                             pot += raise_amt
                             computer_chips -= raise_amt
                             raised = False
-                            break
                         else:
                             await ctx.send('\n{} folds\n'.format(client.user.display_name))
                             if computer_wins == 0:
@@ -1007,6 +1015,8 @@ async def _poker(ctx):
                                 computer_wins -= 1
                                 player_chips += pot
                             player_wins += 1
+                            ## make loss variable
+                            folded = True
                             break
                 else:
                     ## generate random number to determine if to call or fold
@@ -1016,7 +1026,6 @@ async def _poker(ctx):
                         pot += raise_amt
                         computer_chips -= raise_amt
                         raised = False
-                        break
                     else:
                         await ctx.send('\n{} folds\n'.format(client.user.display_name))
                         if computer_wins == 0:
@@ -1026,6 +1035,8 @@ async def _poker(ctx):
                             computer_wins -= 1
                             player_chips += pot
                         player_wins += 1
+                        folded = True
+                        ## make loss variable to exit out of loop
                         break
 
 
@@ -1050,6 +1061,8 @@ async def _poker(ctx):
                                     computer_wins -= 1
                                     player_chips += pot
                                 player_wins += 1
+                                folded = True
+                                break
                             else:
                                 ## call
                                 await ctx.send('\n{} calls\n'.format(client.user.display_name))
@@ -1080,6 +1093,9 @@ async def _poker(ctx):
                                 computer_wins -= 1
                                 player_chips += pot
                             player_wins += 1
+                            folded = True
+                            # make a loss variable
+                            break
                         else:
                             ## call
                             await ctx.send('\n{} calls\n'.format(client.user.display_name))
@@ -1111,6 +1127,10 @@ async def _poker(ctx):
                             computer_wins -= 1
                             player_chips += pot
                         player_wins += 1
+                        folded = True
+                        break
+        if folded:
+            break
 
 
 
