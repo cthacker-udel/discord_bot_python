@@ -506,6 +506,20 @@ def is_three_of_a_kind(hand):
             return True
     return False
 
+def get_three_of_a_kind_cards(hand):
+
+    adict = {}
+
+    for eachcard in hand:
+        rank = eachcard.split(' ')[0]
+        if rank in adict:
+            adict[rank] = adict[rank] + 1
+        else:
+            adict[rank] = 1
+    for eachkey in adict.keys():
+        if adict[eachkey] == 3:
+            return eachkey
+
 
 def is_two_pair(hand):
 
@@ -526,6 +540,30 @@ def is_two_pair(hand):
             return True
     return False
 
+def get_two_pair_cards(hand):
+
+    cards = []
+
+    adict = {}
+
+    for eachcard in hand:
+        rank = eachcard.split(' ')[0]
+        if rank in adict:
+            adict[rank] = adict[rank] + 1
+        else:
+            adict[rank] = 1
+
+    found_pair = False
+    for eachkey in adict.keys():
+        if adict[eachkey] == 2 and not found_pair:
+            found_pair = True
+            cards.append(eachkey)
+        elif found_pair and adict[eachkey] == 2:
+            cards.append(eachkey)
+            return cards
+    return []
+
+
 def is_one_pair(hand):
 
     adict = {}
@@ -543,6 +581,21 @@ def is_one_pair(hand):
             return True
     return False
 
+def get_one_pair_cards(hand):
+    adict = {}
+
+    for eachcard in hand:
+        rank = eachcard.split(' ')[0]
+        if rank not in adict:
+            adict[rank] = adict[rank] + 1
+        else:
+            adict[rank] = 1
+
+    for eachkey in adict.keys():
+        if adict[eachkey] == 2:
+            return eachkey
+    return False
+
 def high_card(hand):
 
     misc_ranks = {'Jack': 11, 'Queen': 12, 'King': 13, 'Ace': 14}
@@ -556,6 +609,30 @@ def high_card(hand):
             rank_list.append(int(rank))
 
     return max(rank_list)
+
+def deal_high_card(hand):
+
+    misc_ranks = {'Jack': 11, 'Queen': 12, 'King': 13, 'Ace': 14}
+    rank_list = []
+
+    for eachcard in hand:
+        rank = eachcard.split(' ')[0]
+        if rank in misc_ranks.keys():
+            rank_list.append(misc_ranks[rank])
+        else:
+            rank_list.append(int(rank))
+
+    max_card = max(rank_list)
+
+    for i in range(len(hand)):
+        rank = hand[i].split(' ')[0]
+        if rank in misc_ranks.key() and misc_ranks[rank] == max_card:
+            del hand[i]
+            return misc_ranks[rank],hand
+        elif int(rank) == max_card:
+            del hand[i]
+            return rank,hand
+    return max_card,hand
 
 
 def is_flush(hand:[str])->[int]:
@@ -589,6 +666,7 @@ def is_flush(hand:[str])->[int]:
                         rank = ranks[rank]
                     theCards.append(rank)
             return theCards if len(theCards) > 0 else [-1]
+            ### flush already returns cards
     return [-1]
 
 def deal(hand):
@@ -635,6 +713,8 @@ def is_straight(hand:[str])->[int]:
             rank = special_ranks[rank]
         ranks.append(rank)
 
+    ranks = sorted(ranks)
+
     distinct_ranks = []
 
     for eachrank in ranks:
@@ -656,6 +736,64 @@ def is_straight(hand:[str])->[int]:
             break
         if ct == 4:
             return theMax
+    return [-1]
+
+
+def get_straight_cards(hand):
+
+    cards = []
+
+    ranks = []
+
+    # suits = ['spades','diamonds','hearts','clubs']
+    # ranks = [1,2,3,4,5,6,7,8,9,10,'Jack','Queen','King','Ace']
+
+    # for eachsuit in suits:
+    #    for eachrank in ranks:
+    #        deckArr.append(str(eachrank) + ' of ' + eachsuit.capitalize())
+    # return deckArr
+
+    if len(hand) < 5:
+        print('Not enough cards to make a straight combination possible')
+        return False
+
+    special_ranks = {'Jack': 11, 'Queen': 12, 'King': 13, 'Ace': 14}
+
+    for eachcard in hand:
+        split_hand = eachcard.split(' ')
+        rank = split_hand[0]
+        try:
+            rank = int(rank)
+        except Exception as e:
+            rank = special_ranks[rank]
+        ranks.append(rank)
+
+    ranks = sorted(ranks)
+
+    distinct_ranks = []
+
+    for eachrank in ranks:
+        if eachrank not in distinct_ranks:
+            distinct_ranks.append(eachrank)
+
+    ct = 0
+
+    for i in range(len(distinct_ranks) - 4):
+        for j in range(len(distinct_ranks) - 1):
+            if abs(distinct_ranks[j + 1] - distinct_ranks[j]) == 1 or (
+                    (distinct_ranks[j + 1] == 14 and distinct_ranks[j] == 1) or (
+                    distinct_ranks[j + 1] == 1 and distinct_ranks[j] == 14)):
+                ct += 1
+                if distinct_ranks[j] not in cards:
+                    cards.append(distinct_ranks[j])
+                if distinct_ranks[j+1] not in cards:
+                    cards.append(distinct_ranks[j+1])
+            else:
+                ct = 0
+                cards = []
+                break
+        if ct == 4:
+            return cards
     return [-1]
 
 def royal_flush(hand):
@@ -704,6 +842,25 @@ def is_four_of_a_kind(hand):
             return True
     return False
 
+def get_four_of_a_kind_cards(hand):
+
+    adict = {}
+
+    cards = []
+
+    for eachcard in hand:
+        rank = eachcard.split(' ')[0]
+        if rank in adict.keys():
+            adict[rank] = adict[rank] + 1
+        else:
+            adict[rank] = 1
+
+    for eachkey in adict.keys():
+        if adict[eachkey] == 4:
+            cards.append(eachkey)
+            return cards
+    return []
+
 def is_full_house(hand):
 
     adict = {}
@@ -724,6 +881,31 @@ def is_full_house(hand):
         elif adict[eachkey] == 2:
             found_two = True
     return found_three and found_two
+
+def get_full_house_cards(hand):
+
+    cards = []
+
+    adict = {}
+
+    for eachcard in hand:
+        rank = eachcard.split(' ')[0]
+        if rank in adict.keys():
+            adict[rank] = adict[rank] + 1
+        else:
+            adict[rank] = 1
+
+    found_three = False
+    found_two = False
+
+    for eachkey in adict.keys():
+        if adict[eachkey] == 3:
+            cards.append(eachkey)
+            found_three = True
+        elif adict[eachkey] == 2:
+            cards.append(eachkey)
+            found_two = True
+    return cards
 
 
 def poker_combos(hand):
@@ -748,6 +930,23 @@ def poker_combos(hand):
         return 1
     else:
         return [high_card(hand)] ## check if type of return is type(var) == [] to assert if high card value has been assesed
+
+def showdown(player_hand,computer_hand):
+
+    player_strength = poker_combos(player_hand)
+    computer_strength = poker_combos(computer_hand)
+
+    ## 1 - player win
+    ## 2 - computer win
+    ## 3 - tie
+
+    if player_strength > computer_strength:
+        return 1
+    elif computer_strength > player_strength:
+        return 2
+    else:
+        ## highcard showdown
+
 
 
 async def display_table_cards(ctx,hand):
@@ -1163,8 +1362,8 @@ async def _poker(ctx):
                         player_wins += 1
                         folded = True
                         break
-        if folded:
-            break
+        #if folded:
+        #    break
 
 
 
