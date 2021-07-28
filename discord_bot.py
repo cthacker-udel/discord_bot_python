@@ -596,6 +596,18 @@ def deal(hand):
     hand = hand[:-1]
     return card
 
+def shuffle(hand):
+
+    indexes = [x for x in range(0,len(hand))]
+    new_hand = []
+
+    for i in range(len(hand)):
+        index_chosen = random.choice(indexes)
+        indexes.remove(index_chosen)
+        new_hand.append(hand[index_chosen])
+    return new_hand
+
+
 def is_straight(hand:[str])->[int]:
 
     ranks = []
