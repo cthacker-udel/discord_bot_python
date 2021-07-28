@@ -1170,6 +1170,32 @@ def showdown(player_hand,computer_hand):
                     return 2
                 else:
                     return 3
+        elif player_strength == 1 and computer_strength == 1:
+            player_card = get_one_pair_cards(player_hand)
+            computer_card = get_one_pair_cards(computer_hand)
+            if player_card > computer_card:
+                return 1
+            elif computer_card > player_card:
+                return 2
+            else:
+                player_high_card = ''
+                computer_high_card = ''
+                while len(player_hand) > 0:
+                    player_high_card, player_hand = deal_high_card(player_hand)
+                    computer_high_card, computer_hand = deal_high_card(computer_hand)
+                    if player_high_card > computer_high_card:
+                        return 1
+                    elif computer_high_card > player_high_card:
+                        return 2
+                    else:
+                        player_high_card, player_hand = deal_high_card(player_hand)
+                        computer_high_card, computer_hand = deal_high_card(computer_hand)
+                if player_high_card > computer_high_card:
+                    return 1
+                elif computer_high_card > player_high_card:
+                    return 2
+                else:
+                    return 3
 
 
 
