@@ -18,6 +18,14 @@ import math
 from pprint import pprint
 import asyncio
 from tokenstorage import get_token
+import bs4
+import selenium.webdriver
+from webdriver_manager.microsoft import IEDriverManager as InternetExplorerDriverManager
+from webdriver_manager.microsoft import EdgeChromiumDriverManager as EdgeDriverManager
+from webdriver_manager.opera import OperaDriverManager
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager as FirefoxDriverManager
+
 
 dictionary = PyDictionary()
 
@@ -39,6 +47,22 @@ def generate_deck():
         for eachrank in ranks:
             deckArr.append(str(eachrank) + ' of ' + eachsuit.capitalize())
     return deckArr
+
+
+@client.command(aliases=['script'])
+async def get_script(ctx):
+    return None
+
+
+@client.command(aliases=['ready'])
+async def is_ready(ctx):
+
+    if client.is_ready():
+        await ctx.send('{} The bot {} is ready to receive requests!'.format(ctx.message.author.mention,client.user.display_name))
+    else:
+        await ctx.send('{} The bot {} is not ready to receive requests!'.format(ctx.message.author.mention,client.user.display_name))
+
+
 
 
 @client.command(aliases=['remind'])
@@ -176,7 +200,10 @@ async def _num_guess(ctx):
     boolVar = True
     while boolVar:
         Message = await client.wait_for('message', check=lambda message: message.author == ctx.author)
-        guess = int(Message.content)
+        try:
+            guess = int(Message.content)
+        except Exception as e:
+            continue
         if guess > random_number:
             await ctx.send("Guess lower")
             continue
@@ -197,7 +224,7 @@ async def _random_generator(ctx):
 @client.command(aliases=['roll', 'diceroll', 'dice'])
 async def _dice_roll(ctx):
     rolls = [x for x in range(1, 13)]
-    await ctx.send("You rolled : {}".format(random.choice(rolls)))
+    await ctx.send("{} You rolled : {}".format(ctx.message.author.mention,random.choice(rolls)))
 
 
 @client.command(aliases=['alexa', 'amazon'])
@@ -217,9 +244,9 @@ async def _play_rock(ctx):
     results = ['rock', 'rock', 'paper', 'paper', 'scissors', 'scissors']
     random_choice = random.choice(results)
     if random_choice == 'scissors':
-        await ctx.send("You won!! Computer chose : scissors")
+        await ctx.send("{} You won!! Computer chose : scissors".format(ctx.message.author.mention))
     elif random_choice == 'paper':
-        await ctx.send("You lost!! Computer chose : paper")
+        await ctx.send("{} You lost!! Computer chose : paper".format(ctx.message.author.mention))
     else:
         await ctx.send("Tie!!")
 
@@ -229,9 +256,9 @@ async def _play_paper(ctx):
     results = ['rock', 'rock', 'paper', 'paper', 'scissors', 'scissors']
     random_choice = random.choice(results)
     if random_choice == 'scissors':
-        await ctx.send("You lost!! Computer chose : scissors")
+        await ctx.send("{} You lost!! Computer chose : scissors".format(ctx.message.author.mention))
     elif random_choice == 'rock':
-        await ctx.send("You won!! Computer chose : rock")
+        await ctx.send("{} You won!! Computer chose : rock".format(ctx.message.author.mention))
     else:
         await ctx.send("Tie!!")
 
@@ -241,9 +268,9 @@ async def _play_scissors(ctx):
     results = ['rock', 'rock', 'paper', 'paper', 'scissors', 'scissors']
     random_choice = random.choice(results)
     if random_choice == 'rock':
-        await ctx.send("You lost!! Computer chose : rock")
+        await ctx.send("{} You lost!! Computer chose : rock".format(ctx.message.author.mention))
     elif random_choice == 'paper':
-        await ctx.send("You won!! Computer chose : paper")
+        await ctx.send("{} You won!! Computer chose : paper".format(ctx.message.author.mention))
     else:
         await ctx.send("Tie!!")
 
@@ -574,14 +601,54 @@ def royal_flush(hand):
         return False
 
 
+def is_four_of_a_kind(hand):
+
+    adict = {}
+
+    for eachcard in hand:
+        if eachcard in adict.keys():
+            adict[eachcard] = adict[eachcard] + 1
+        else:
+            adict[eachcard] = 1
+
+    for eachkey in adict.keys():
+        if adict[eachkey] == 4:
+            return True
+    return False
+
+def is_full_house(hand):
+
+    adict = {}
+
+    for eachcard in hand:
+        if eachcard in adict.keys():
+            adict[eachcard] = adict[eachcard] + 1
+        else:
+            adict[eachcard] = 1
+
+    found_three = False
+    found_two = False
+
+    for eachkey in adict.keys():
+        if adict[eachkey] == 3:
+            found_three = True
+        elif adict[eachkey] == 2:
+            found_two = True
+    return found_three and found_two
+
+
 
 
 def poker_combos(hand):
 
-    if is_straight(hand) != [-1]:
-        return False
-    elif is_flush(hand) != [1]:
-        return False
+    if royal_flush(hand):
+        return 0
+    if is_straight(hand) != [-1] and is_flush(hand) != [-1]:
+        return 1 ## straight flush
+    if is_four_of_a_kind(hand):
+        return 2 ## four of a kind
+    elif is_flush(hand) != [-1]:
+        return False #flush
 
 
 
