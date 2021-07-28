@@ -938,6 +938,30 @@ def showdown(player_hand,computer_hand):
     player_cards = []
     computer_cards = []
 
+    if type(player_strength) == type([]) and type(computer_strength) == type([]):
+        player_high_card = ''
+        computer_high_card = ''
+        while len(player_hand) > 0:
+            player_high_card, player_hand = deal_high_card(player_hand)
+            computer_high_card, computer_hand = deal_high_card(computer_hand)
+            if player_high_card > computer_high_card:
+                return 1
+            elif computer_high_card > player_high_card:
+                return 2
+            else:
+                player_high_card, player_hand = deal_high_card(player_hand)
+                computer_high_card, computer_hand = deal_high_card(computer_hand)
+        if player_high_card > computer_high_card:
+            return 1
+        elif computer_high_card > player_high_card:
+            return 2
+        else:
+            return 3
+    elif type(player_strength) == type([]) and type(computer_strength) != type([]):
+        return 2
+    elif type(player_strength) != type([]) and type(computer_strength) == type([]):
+        return 1
+
     ## 1 - player win
     ## 2 - computer win
     ## 3 - tie
