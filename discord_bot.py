@@ -590,6 +590,12 @@ def is_flush(hand:[str])->[int]:
             return theCards if len(theCards) > 0 else [-1]
     return [-1]
 
+def deal(hand):
+
+    card = hand[-1]
+    hand = hand[:-1]
+    return card
+
 def is_straight(hand:[str])->[int]:
 
     ranks = []
