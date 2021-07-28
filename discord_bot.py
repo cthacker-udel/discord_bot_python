@@ -615,23 +615,30 @@ def deal_high_card(hand):
     misc_ranks = {'Jack': 11, 'Queen': 12, 'King': 13, 'Ace': 14}
     rank_list = []
 
+    rank = 0
     for eachcard in hand:
-        rank = eachcard.split(' ')[0]
-        if rank in misc_ranks.keys():
-            rank_list.append(misc_ranks[rank])
-        else:
-            rank_list.append(int(rank))
+        try:
+            rank = eachcard.split(' ')[0]
+            if rank in misc_ranks.keys():
+                rank_list.append(misc_ranks[rank])
+            else:
+                rank_list.append(int(rank))
+        except Exception as e:
+            rank_list.append(rank)
 
     max_card = max(rank_list)
 
     for i in range(len(hand)):
-        rank = hand[i].split(' ')[0]
-        if rank in misc_ranks.key() and misc_ranks[rank] == max_card:
-            del hand[i]
-            return misc_ranks[rank],hand
-        elif int(rank) == max_card:
-            del hand[i]
-            return rank,hand
+        try:
+            rank = hand[i].split(' ')[0]
+            if rank in misc_ranks.key() and misc_ranks[rank] == max_card:
+                del hand[i]
+                return misc_ranks[rank],hand
+            elif int(rank) == max_card:
+                del hand[i]
+                return rank,hand
+        except Exception as e:
+            continue
     return max_card,hand
 
 
@@ -938,7 +945,10 @@ def showdown(player_hand,computer_hand):
     player_cards = []
     computer_cards = []
 
+    print('entered showdown function')
+
     if type(player_strength) == type([]) and type(computer_strength) == type([]):
+        print('entered 1st if')
         player_high_card = ''
         computer_high_card = ''
         while len(player_hand) > 0:
@@ -958,8 +968,10 @@ def showdown(player_hand,computer_hand):
         else:
             return 3
     elif type(player_strength) == type([]) and type(computer_strength) != type([]):
+        print('entered 2 if')
         return 2
     elif type(player_strength) != type([]) and type(computer_strength) == type([]):
+        print('entered 3 if')
         return 1
 
     ## 1 - player win
@@ -972,8 +984,10 @@ def showdown(player_hand,computer_hand):
         return 2
     else:
         if player_strength == 9 and computer_strength == 9:
+            print('entered 4 if')
             return 3
         elif player_strength == 8 and computer_strength == 8:
+            print('entered 5 if')
             player_cards = get_straight_cards(player_hand)
             computer_cards = get_straight_cards(computer_hand)
             player_high_card,player_cards = deal_high_card(player_cards)
@@ -1003,6 +1017,7 @@ def showdown(player_hand,computer_hand):
             else:
                 return 3
         elif player_strength == 7 and computer_strength == 7:
+            print('entered 6 if')
             player_card = get_four_of_a_kind_cards(player_hand)
             computer_card = get_four_of_a_kind_cards(computer_hand)
             if player_card > computer_card:
@@ -1029,6 +1044,7 @@ def showdown(player_hand,computer_hand):
                 else:
                     return 3
         elif player_strength == 6 and computer_strength == 6:
+            print('entered 7 if')
             player_cards = get_full_house_cards(player_hand)
             computer_cards = get_full_house_cards(computer_hand)
             if max(player_cards) > max(computer_cards):
@@ -1059,6 +1075,7 @@ def showdown(player_hand,computer_hand):
                 else:
                     return 3
         elif player_strength == 5 and computer_strength == 5:
+            print('entered 8 if')
             player_cards = is_flush(player_hand)
             computer_cards = is_flush(computer_hand)
             if max(player_cards) > max(computer_cards):
@@ -1103,6 +1120,7 @@ def showdown(player_hand,computer_hand):
                     else:
                         return 3
         elif player_strength == 4 and computer_strength == 4:
+            print('entered 9 if')
             player_cards = get_straight_cards(player_hand)
             computer_cards = get_straight_cards(computer_hand)
             player_high_card = ''
@@ -1139,6 +1157,7 @@ def showdown(player_hand,computer_hand):
                 else:
                     return 3
         elif player_strength == 3 and computer_strength:
+            print('entered 10 if')
             player_card = get_three_of_a_kind_cards(player_hand)
             computer_card = get_three_of_a_kind_cards(computer_hand)
             if player_card > computer_card:
@@ -1165,6 +1184,7 @@ def showdown(player_hand,computer_hand):
                 else:
                     return 3
         elif player_strength == 2 and computer_strength == 2:
+            print('entered 11 if')
             player_cards = get_two_pair_cards(player_hand)
             computer_cards = get_two_pair_cards(computer_hand)
             if max(player_cards) > max(computer_cards):
@@ -1195,6 +1215,7 @@ def showdown(player_hand,computer_hand):
                 else:
                     return 3
         elif player_strength == 1 and computer_strength == 1:
+            print('entered 12 if')
             player_card = get_one_pair_cards(player_hand)
             computer_card = get_one_pair_cards(computer_hand)
             if player_card > computer_card:
@@ -1411,7 +1432,7 @@ async def _poker(ctx):
 
         while True:
 
-            await ctx.send('\n------------STATS------------\n-- POT : {}                     --'.format(pot))
+            await ctx.send('\n------------STATS------------\n-- POT : {}                      --'.format(pot))
 
             if first_turn:
                 if len(table_cards) == 5:
