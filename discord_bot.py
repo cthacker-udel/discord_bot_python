@@ -488,6 +488,75 @@ async def _function(ctx):
     await ctx.send("Nothing")
 
 
+def is_three_of_a_kind(hand):
+
+    adict = {}
+
+    for eachcard in hand:
+        rank = eachcard.split(' ')[0]
+        if rank in adict:
+            adict[rank] = adict[rank] + 1
+        else:
+            adict[rank] = 1
+
+
+    for eachkey in adict.keys():
+        if adict[eachkey] == 3:
+            return True
+    return False
+
+
+def is_two_pair(hand):
+
+    adict = {}
+
+    for eachcard in hand:
+        rank = eachcard.split(' ')[0]
+        if rank in adict:
+            adict[rank] = adict[rank] + 1
+        else:
+            adict[rank] = 1
+
+    found_pair = False
+    for eachkey in adict.keys():
+        if adict[eachkey] == 2 and not found_pair:
+            found_pair = True
+        elif found_pair and adict[eachkey] == 2:
+            return True
+    return False
+
+def is_one_pair(hand):
+
+    adict = {}
+
+    for eachcard in hand:
+        rank = eachcard.split(' ')[0]
+        if rank not in adict:
+            adict[rank] = adict[rank] + 1
+        else:
+            adict[rank] = 1
+
+
+    for eachkey in adict.keys():
+        if adict[eachkey] == 2:
+            return True
+    return False
+
+def high_card(hand):
+
+    misc_ranks = {'Jack': 11, 'Queen': 12, 'King': 13, 'Ace': 14}
+    rank_list = []
+
+    for eachcard in hand:
+        rank = eachcard.split(' ')[0]
+        if rank in misc_ranks.keys():
+            rank_list.append(misc_ranks[rank])
+        else:
+            rank_list.append(int(rank))
+
+    return max(rank_list)
+
+
 def is_flush(hand:[str])->[int]:
 
     suits = []
@@ -606,10 +675,11 @@ def is_four_of_a_kind(hand):
     adict = {}
 
     for eachcard in hand:
-        if eachcard in adict.keys():
-            adict[eachcard] = adict[eachcard] + 1
+        rank = eachcard.split(' ')[0]
+        if rank in adict.keys():
+            adict[rank] = adict[rank] + 1
         else:
-            adict[eachcard] = 1
+            adict[rank] = 1
 
     for eachkey in adict.keys():
         if adict[eachkey] == 4:
@@ -621,10 +691,11 @@ def is_full_house(hand):
     adict = {}
 
     for eachcard in hand:
-        if eachcard in adict.keys():
-            adict[eachcard] = adict[eachcard] + 1
+        rank = eachcard.split(' ')[0]
+        if rank in adict.keys():
+            adict[rank] = adict[rank] + 1
         else:
-            adict[eachcard] = 1
+            adict[rank] = 1
 
     found_three = False
     found_two = False
@@ -647,6 +718,8 @@ def poker_combos(hand):
         return 1 ## straight flush
     if is_four_of_a_kind(hand):
         return 2 ## four of a kind
+    if is_full_house(hand):
+        return 3
     elif is_flush(hand) != [-1]:
         return False #flush
 
