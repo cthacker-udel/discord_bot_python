@@ -726,20 +726,28 @@ def is_full_house(hand):
     return found_three and found_two
 
 
-
-
 def poker_combos(hand):
 
     if royal_flush(hand):
-        return 0
+        return 9
     if is_straight(hand) != [-1] and is_flush(hand) != [-1]:
-        return 1 ## straight flush
+        return 8 ## straight flush
     if is_four_of_a_kind(hand):
-        return 2 ## four of a kind
+        return 7 ## four of a kind
     if is_full_house(hand):
-        return 3
+        return 6
     elif is_flush(hand) != [-1]:
-        return False #flush
+        return 5
+    elif is_straight(hand):
+        return 4
+    elif is_three_of_a_kind(hand):
+        return 3
+    elif is_two_pair(hand):
+        return 2
+    elif is_one_pair(hand):
+        return 1
+    else:
+        return [high_card(hand)] ## check if type of return is type(var) == [] to assert if high card value has been assesed
 
 
 async def display_table_cards(ctx,hand):
@@ -752,9 +760,12 @@ async def display_player_hand(ctx,hand):
 @client.command(aliases=['poker'])
 async def _poker(ctx):
     #print('----- displaying poker -----')
-    deck = generate_deck()
-    for i in range(7):
-        deck = shuffle(deck)
+    #global player_chips
+    await ctx.send('----starting poker game----')
+    #deck = generate_deck()
+    #for i in range(7):
+    #    deck = shuffle(deck)
+
     """
     
     Steps :
@@ -775,33 +786,31 @@ async def _poker(ctx):
     
     """
 
-    player_hand = []
-    computer_hand = []
-    table_cards = []
+    #player_hand = []
+    #computer_hand = []
+    #table_cards = []
 
-    await ctx.send('----starting poker game----')
+    #await ctx.send('Dealing {}\'s hand'.format(ctx.message.author.mention))
 
-    await ctx.send('Dealing {}\'s hand'.format(ctx.message.author.mention))
+    #for i in range(2):
+    #    card,deck = deal(deck)
+    #    player_hand.append(card)
 
-    for i in range(2):
-        card,deck = deal(deck)
-        player_hand.append(card)
+    #await ctx.send('Dealing {}\'s hand'.format(client.user.display_name))
 
-    await ctx.send('Dealing {}\'s hand'.format(client.user.display_name))
+    #for i in range(2):
+    #    card,deck = deal(deck)
+    #    computer_hand.append(card)
 
-    for i in range(2):
-        card,deck = deal(deck)
-        computer_hand.append(card)
+    #await ctx.send('Dealing table cards')
 
-    await ctx.send('Dealing table cards')
+    #for i in range(2):
+    #    card,deck = deal(deck)
+    #    table_cards.append(card)
 
-    for i in range(2):
-        card,deck = deal(deck)
-        table_cards.append(card)
+    #await display_table_cards(ctx,table_cards)
 
-    await display_table_cards(ctx,table_cards)
-
-    await display_player_hand(ctx,table_cards + player_hand)
+    #await display_player_hand(ctx,table_cards + player_hand)
 
     player_chips = 0
     computer_chips = random.randint(10000,10000000)
@@ -817,10 +826,133 @@ async def _poker(ctx):
             await ctx.send("\n------ERROR : INVALID INPUT------\n--> Enter a number value <--\n")
 
     rounds = 1
+    player_wins = 0
+    computer_wins = 0
 
     while True:
         await ctx.send('-----------------------------------------------------------------------------------------------------\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tROUND {}\n-----------------------------------------------------------------------------------------------------\n'.format(rounds))
         rounds += 1
+        pot = 0
+        player_raised = False
+        computer_raised = False
+
+        ## Pre-Round configuration
+        """
+        
+        Configuration :
+        
+        1) Create new deck
+        2) Empty player hand, computer hand, and table cards
+        3) Deal to player hand
+        4) Deal to computer hand
+        5) Deal table cards
+        
+        """
+
+        deck = generate_deck()
+        for i in range(7):
+            deck = shuffle(deck)
+        player_hand = []
+        computer_hand = []
+        table_cards = []
+
+        await ctx.send('Dealing {}\'s hand'.format(ctx.message.author.mention))
+
+        for i in range(2):
+            card, deck = deal(deck)
+            player_hand.append(card)
+
+        await ctx.send('Dealing {}\'s hand'.format(client.user.display_name))
+
+        for i in range(2):
+            card, deck = deal(deck)
+            computer_hand.append(card)
+
+        await ctx.send('Dealing table cards')
+
+        for i in range(2):
+            card, deck = deal(deck)
+            table_cards.append(card)
+
+        await display_table_cards(ctx, table_cards)
+
+        await display_player_hand(ctx, table_cards + player_hand)
+
+        player_hand += table_cards
+        computer_hand += table_cards
+
+        ## Put Down bets
+
+        while True:
+            await ctx.send("\n----------- PLAYER PLACE BET [Current Chip Amount : {}]".format(player_chips))
+            bets = ctx.wait_for('message', check=lambda message : message.author == ctx.author)
+            try:
+                bets = int(bets)
+                player_chips -= bets
+                pot += bets
+                break
+            except Exception as e:
+                ctx.send("\n--------- ERROR : INVALID INPUT ---------\n")
+                continue
+
+
+        await ctx.send("\n------- COMPUTER CALLING BET -------\n")
+        if computer_chips < bets:
+            pot += computer_chips
+            computer_chips = 0
+        else:
+            computer_chips -= bets
+            pot += bets
+
+
+        while True:
+            while True:
+                await ctx.send("\n------------- CHOICES -------------\n1)Fold\n2)Call\n3)Raise")
+                message = await client.wait_for('message',check=lambda message : message.author == ctx.author)
+                try:
+                    message = int(message)
+                    break
+                except Exception as e:
+                    await ctx.send("\n------------ Enter valid value ----------\n")
+            if message == 1:
+                await ctx.send("\n{} folds\n".format(ctx.message.author.mention))
+                if player_wins == 0:
+                    player_wins = 0
+                else:
+                    player_wins -= 1
+                computer_wins += 1
+                break
+            elif message == 2:
+                ## call
+                await ctx.send("\n{} calls\n".format(ctx.message.author.mention))
+            elif message == 3:
+                ## raise
+                await ctx.send("\nHow many chips do you want to raise?[Current Amount : {}]".format(player_chips))
+                while True:
+                    amt = ctx.wait_for('message',check= lambda message : message.author == ctx.author)
+                    try:
+                        amt = int(amt)
+                        player_chips -= amt
+                    except Exception as e:
+                        ctx.send("\n----- ERROR INVALID INPUT -----\n")
+                        continue
+                await ctx.send("\n{} raises {} chips".format(ctx.message.author.mention,amt))
+                player_raised = True
+
+
+            ### Computer's turn
+
+
+            if message == 2:
+                ## player called
+
+                ## decide if to fold
+
+                player_strength = poker_combos(player_hand)
+                computer_strength = poker_combos(computer_hand)
+
+            elif message == 3:
+                ## player raised
 
 
 
