@@ -82,6 +82,7 @@ async def on_ready():
 
 @client.event
 async def on_connect():
+    random.seed(time.time() * 1000)
     print("beep..\nboop..\nbeep...\n\nBOT ONLINE\n")
 
 
@@ -594,10 +595,9 @@ def deal(hand):
 
     card = hand[-1]
     hand = hand[:-1]
-    return card
+    return card,hand
 
 def shuffle(hand):
-
     indexes = [x for x in range(0,len(hand))]
     new_hand = []
 
@@ -742,11 +742,89 @@ def poker_combos(hand):
         return False #flush
 
 
+async def display_table_cards(ctx,hand):
+    await ctx.send('#########################################################\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tTABLE CARDS\n#########################################################\n{}\n#########################################################'.format(hand))
 
+async def display_player_hand(ctx,hand):
+
+    await ctx.send('-----------------------------------------------------------------------------------------------------\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tPLAYER HAND\n-----------------------------------------------------------------------------------------------------\n{}\n-----------------------------------------------------------------------------------------------------'.format(hand))
 
 @client.command(aliases=['poker'])
 async def _poker(ctx):
+    #print('----- displaying poker -----')
     deck = generate_deck()
+    for i in range(7):
+        deck = shuffle(deck)
+    """
+    
+    Steps :
+    1) Generate Player Hand
+    2) Generate Computer Hand
+    3) Generate Table Hand
+    4) Ask for bets
+    5) Ask Player to either fold,call,or raise
+    6) Depending on answer, computer chooses at random, [skewed to call or raise more then fold, 
+    fold will either be if computer analyses it's hand and players hand, and the computer's hand is less, and the number it generates
+    is odd, then it will fold, or if the number it generates is divisible by 5, it folds. 
+    
+    Then to call, it sees if it's hand strength is either equal or greater than the player's, then it calls, or if the number it generates is even. 
+    
+    Then for raising, if it's hand has greater strength then the player's, it raises, and also if the number it generates is odd or even 
+    and its strength is greater or equal to player's hand, it raises, otherwise, if the number it generates is odd, it raises.
+    
+    
+    """
+
+    player_hand = []
+    computer_hand = []
+    table_cards = []
+
+    await ctx.send('----starting poker game----')
+
+    await ctx.send('Dealing {}\'s hand'.format(ctx.message.author.mention))
+
+    for i in range(2):
+        card,deck = deal(deck)
+        player_hand.append(card)
+
+    await ctx.send('Dealing {}\'s hand'.format(client.user.display_name))
+
+    for i in range(2):
+        card,deck = deal(deck)
+        computer_hand.append(card)
+
+    await ctx.send('Dealing table cards')
+
+    for i in range(2):
+        card,deck = deal(deck)
+        table_cards.append(card)
+
+    await display_table_cards(ctx,table_cards)
+
+    await display_player_hand(ctx,table_cards + player_hand)
+
+    player_chips = 0
+    computer_chips = random.randint(10000,10000000)
+
+    await ctx.send('{} How many chips do you wish to enter into the poker arena with?'.format(ctx.message_author.mention))
+
+    while True:
+        message = await client.wait_for('message', check=lambda message: message.author == ctx.author)
+        try:
+            player_chips = int(message.content)
+            break
+        except Exception as e:
+            await ctx.send("\n------ERROR : INVALID INPUT------\n--> Enter a number value <--\n")
+
+    rounds = 1
+
+    while True:
+        await ctx.send('-----------------------------------------------------------------------------------------------------\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tROUND {}\n-----------------------------------------------------------------------------------------------------\n'.format(rounds))
+        rounds += 1
+
+
+
+
 
 
 
