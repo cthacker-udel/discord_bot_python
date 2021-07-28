@@ -783,6 +783,8 @@ async def _poker(ctx):
     Then for raising, if it's hand has greater strength then the player's, it raises, and also if the number it generates is odd or even 
     and its strength is greater or equal to player's hand, it raises, otherwise, if the number it generates is odd, it raises.
     
+    When table cards length == 5, showdown begins
+    
     
     """
 
@@ -830,7 +832,31 @@ async def _poker(ctx):
     computer_wins = 0
 
     while True:
+        first_turn = False
+        raise_amt = 0
+        raised = False
         await ctx.send('-----------------------------------------------------------------------------------------------------\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tROUND {}\n-----------------------------------------------------------------------------------------------------\n'.format(rounds))
+
+        end_game = False
+        if rounds > 0:
+            while True:
+                await ctx.send('Continue Poker? 1) Yes 2) No')
+                msg = ctx.wait_for('message', check=lambda message : message.author == ctx.author)
+                try:
+                    msg = int(msg)
+                    if msg == 2:
+                        end_game = True
+                        break
+                    else:
+                        end_game = False
+                        break
+                except Exception as e:
+                    await ctx.send('Enter valid input')
+
+        if end_game:
+            break
+
+
         rounds += 1
         pot = 0
         player_raised = False
@@ -906,6 +932,13 @@ async def _poker(ctx):
 
 
         while True:
+            if first_turn:
+                if len(table_cards) == 5:
+                    ## showdown between player_hand and computer_hand
+                card,deck = deal(deck)
+                player_hand += [card]
+                computer_hand += [card]
+                table_cards += [card]
             while True:
                 await ctx.send("\n------------- CHOICES -------------\n1)Fold\n2)Call\n3)Raise")
                 message = await client.wait_for('message',check=lambda message : message.author == ctx.author)
@@ -918,8 +951,10 @@ async def _poker(ctx):
                 await ctx.send("\n{} folds\n".format(ctx.message.author.mention))
                 if player_wins == 0:
                     player_wins = 0
+                    computer_chips += pot
                 else:
                     player_wins -= 1
+                    computer_chips += pot
                 computer_wins += 1
                 break
             elif message == 2:
@@ -937,22 +972,110 @@ async def _poker(ctx):
                         ctx.send("\n----- ERROR INVALID INPUT -----\n")
                         continue
                 await ctx.send("\n{} raises {} chips".format(ctx.message.author.mention,amt))
-                player_raised = True
 
 
             ### Computer's turn
 
+            player_strength = poker_combos(player_hand)
+            computer_strength = poker_combos(computer_hand)
+
+            if raised:
+                if computer_strength >= player_strength:
+                    if computer_chips >= raise_amt:
+                        ## call raise
+                        await ctx.send('\n{} calls the raise of {} chips\n'.format(client.user.display_name,raise_amt))
+                        pot += raise_amt
+                        computer_chips -= raise_amt
+                        raised = False
+                        break
+                    else:
+                        ## generate random number to determine if to call or fold
+                else:
+                    ## generate random number to determine if to call or fold
 
             if message == 2:
                 ## player called
 
                 ## decide if to fold
 
-                player_strength = poker_combos(player_hand)
-                computer_strength = poker_combos(computer_hand)
-
+                if type(player_strength) == type([]):
+                    ## player has a high card
+                    if type(computer_strength) == type([]):
+                        ## both have high cards, compare high cards
+                        if player_strength[0] > computer_strength[0]:
+                            ## generate number to determine if to fold
+                            rand_choice = random.randint(0,1000000)
+                            if rand_choice % 5 == 0:
+                                await ctx.send("\n{} folds\n".format(client.user.display_name))
+                                if computer_wins == 0:
+                                    computer_wins = 0
+                                    player_chips += pot
+                                else:
+                                    computer_wins -= 1
+                                    player_chips += pot
+                                player_wins += 1
+                            else:
+                                ## call
+                                await ctx.send('\n{} calls\n'.format(client.user.display_name))
+                                first_turn = True
+                        else:
+                            ## computer's card is higher then players card, call
+                            await ctx.send('\n{} calls\n'.format(client.user.display_name))
+                            first_turn = True
+                    else:
+                        ## computer has combo while player has high card, call
+                        await ctx.send('\n{} calls\n'.format(client.user.display_name))
+                        first_turn = True
+                else:
+                    ## player has combo, check if computer's combo is greater
+                    if computer_strength > player_strength:
+                        await ctx.send('\n{} calls\n'.format(client.user.display_name))
+                        first_turn = True
+                        ## computer strength is greater, call
+                    else:
+                        ## generate random number to determine whether to fold
+                        rand_choice = random.randint(0,1000000)
+                        if rand_choice % 5 == 0:
+                            await ctx.send('\n{} folds\n'.format(client.user.display_name))
+                            if computer_wins == 0:
+                                computer_wins = 0
+                                player_chips += pot
+                            else:
+                                computer_wins -= 1
+                                player_chips += pot
+                            player_wins += 1
+                        else:
+                            ## call
+                            await ctx.send('\n{} calls\n'.format(client.user.display_name))
+                            first_turn = True
             elif message == 3:
                 ## player raised
+                if computer_strength >= player_strength:
+                    ## raise
+                    raise_amt = random.randint(0, player_chips // 2)
+                    await ctx.send('\n{} raises {} chips\n'.format(client.user.display_name, raise_amt))
+                    computer_chips -= raise_amt
+                    pot += raise_amt
+                    raised = True
+                else:
+                    rand_choice = random.randint(0,1000000)
+                    if rand_choice % 2 == 0 or rand_choice % 3 == 0:
+                        ## raise
+                        raise_amt = random.randint(0,player_chips // 2)
+                        await ctx.send('\n{} raises {} chips\n'.format(client.user.display_name,raise_amt))
+                        computer_chips -= raise_amt
+                        pot += raise_amt
+                        raised = True
+                    else:
+                        await ctx.send('\n{} folds\n'.format(client.user.display_name))
+                        if computer_wins == 0:
+                            computer_wins = 0
+                            player_chips += pot
+                        else:
+                            computer_wins -= 1
+                            player_chips += pot
+                        player_wins += 1
+
 
 
 
