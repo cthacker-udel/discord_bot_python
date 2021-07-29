@@ -570,7 +570,7 @@ def is_one_pair(hand):
 
     for eachcard in hand:
         rank = eachcard.split(' ')[0]
-        if rank not in adict:
+        if rank in adict:
             adict[rank] = adict[rank] + 1
         else:
             adict[rank] = 1
@@ -586,7 +586,7 @@ def get_one_pair_cards(hand):
 
     for eachcard in hand:
         rank = eachcard.split(' ')[0]
-        if rank not in adict:
+        if rank in adict:
             adict[rank] = adict[rank] + 1
         else:
             adict[rank] = 1
@@ -648,7 +648,7 @@ def is_flush(hand:[str])->[int]:
 
     if len(hand) < 5:
         print('Not enough cards to make a flush combination possible')
-        return False
+        return [-1]
 
     maxSuit = ''
 
@@ -707,7 +707,7 @@ def is_straight(hand:[str])->[int]:
 
     if len(hand) < 5:
         print('Not enough cards to make a straight combination possible')
-        return False
+        return [-1]
 
     special_ranks = {'Jack': 11,'Queen': 12,'King': 13,'Ace': 14}
 
@@ -927,7 +927,7 @@ def poker_combos(hand):
         return 6
     elif is_flush(hand) != [-1]:
         return 5
-    elif is_straight(hand):
+    elif is_straight(hand) != [-1]:
         return 4
     elif is_three_of_a_kind(hand):
         return 3
@@ -948,7 +948,7 @@ def showdown(player_hand,computer_hand):
     print('entered showdown function')
 
     if type(player_strength) == type([]) and type(computer_strength) == type([]):
-        print('entered 1st if')
+        print('entered 1st if --- both have high cards')
         player_high_card = ''
         computer_high_card = ''
         while len(player_hand) > 0:
@@ -1437,12 +1437,12 @@ async def _poker(ctx):
             if first_turn:
                 if len(table_cards) == 5:
                     ## showdown between player_hand and computer_hand
-                    showdown(player_hand,computer_hand)
-                    if showdown == 1:
+                    result = showdown(player_hand,computer_hand)
+                    if result == 1:
                         await ctx.send('\n{} WINS {} chips!\n'.format(ctx.message.author.mention,pot))
                         player_chips += pot
 
-                    elif showdown == 2:
+                    elif result == 2:
                         await ctx.send('\n WINS {} chips!!\n'.format(client.user.display_name, pot))
                         computer_chips += pot
                     else:
@@ -1511,6 +1511,9 @@ async def _poker(ctx):
                 await ctx.send("\n{} calls\n".format(ctx.message.author.mention))
             elif message == 3:
                 ## raise
+                if player_chips == 0:
+                    await ctx.send('\nYou must have chips in order to raise\n')
+                    continue
                 await ctx.send("\nHow many chips do you want to raise?[Current Amount : {}]".format(player_chips))
                 while True:
                     amt = await client.wait_for('message',check= lambda message : message.author == ctx.author)
@@ -1531,8 +1534,73 @@ async def _poker(ctx):
             player_strength = poker_combos(player_hand)
             computer_strength = poker_combos(computer_hand)
 
+            #if type(computer_strength) == list:
+            #    computer_strength = 0
+            #if type(player_strength) == list:
+            #    player_strength = 0  ### 0 meaning high card, for non-value based purposes, the value of the high card is not evaluated, but whether both players have high cards
+
             if raised:
-                if computer_strength >= player_strength:
+                if type(player_strength) == list:
+                    if type(computer_strength) == list:
+                        if computer_strength[0] > player_strength[0]:
+                            ## call raise
+                            await ctx.send(
+                                '\n{} calls the raise of {} chips\n'.format(client.user.display_name, raise_amt))
+                            pot += raise_amt
+                            computer_chips -= raise_amt
+                            raised = False
+                            first_turn = True
+                        else:
+                            ## determine if call or fold
+                            rand_choice = random.randint(0, 1000000)
+                            if rand_choice % 2 == 0 or rand_choice % 3 == 0:
+                                await ctx.send(
+                                    '\n{} calls the raise of {} chips\n'.format(client.user.display_name, raise_amt))
+                                pot += raise_amt
+                                computer_chips -= raise_amt
+                                raised = False
+                                first_turn = True
+                            else:
+                                await ctx.send('\n{} folds\n'.format(client.user.display_name))
+                                if computer_wins == 0:
+                                    computer_wins = 0
+                                    player_chips += pot
+                                else:
+                                    computer_wins -= 1
+                                    player_chips += pot
+                                player_wins += 1
+                                ## make loss variable
+                                folded = True
+                                break
+                    else:
+                        ## call raise
+                        await ctx.send('\n{} calls the raise of {} chips\n'.format(client.user.display_name, raise_amt))
+                        pot += raise_amt
+                        computer_chips -= raise_amt
+                        raised = False
+                        first_turn = True
+                elif type(computer_strength) == list:
+                    ## determine if call or fold
+                    rand_choice = random.randint(0, 1000000)
+                    if rand_choice % 2 == 0 or rand_choice % 3 == 0:
+                        await ctx.send('\n{} calls the raise of {} chips\n'.format(client.user.display_name, raise_amt))
+                        pot += raise_amt
+                        computer_chips -= raise_amt
+                        raised = False
+                        first_turn = True
+                    else:
+                        await ctx.send('\n{} folds\n'.format(client.user.display_name))
+                        if computer_wins == 0:
+                            computer_wins = 0
+                            player_chips += pot
+                        else:
+                            computer_wins -= 1
+                            player_chips += pot
+                        player_wins += 1
+                        ## make loss variable
+                        folded = True
+                        break
+                elif computer_strength >= player_strength:
                     if computer_chips >= raise_amt:
                         ## call raise
                         await ctx.send('\n{} calls the raise of {} chips\n'.format(client.user.display_name,raise_amt))
@@ -1618,7 +1686,7 @@ async def _poker(ctx):
                         first_turn = True
                 else:
                     ## player has combo, check if computer's combo is greater
-                    if computer_strength > player_strength:
+                    if type(computer_strength) != list and computer_strength > player_strength:
                         await ctx.send('\n{} calls\n'.format(client.user.display_name))
                         first_turn = True
                         ## computer strength is greater, call
@@ -1643,7 +1711,58 @@ async def _poker(ctx):
                             first_turn = True
             elif message == 3:
                 ## player raised
-                if computer_strength >= player_strength:
+                ## check if player has high card
+                if type(player_strength) == list:
+                    if type(computer_strength) == list:
+                        rand_choice = random.randint(0, 1000000)
+                        if rand_choice % 2 == 0 or rand_choice % 3 == 0:
+                            ## raise
+                            raise_amt = random.randint(0, player_chips // 2)
+                            await ctx.send('\n{} raises {} chips\n'.format(client.user.display_name, raise_amt))
+                            computer_chips -= raise_amt
+                            pot += raise_amt
+                            raised = True
+                            first_turn = True
+                        else:
+                            await ctx.send('\n{} folds\n'.format(client.user.display_name))
+                            if computer_wins == 0:
+                                computer_wins = 0
+                                player_chips += pot
+                            else:
+                                computer_wins -= 1
+                                player_chips += pot
+                            player_wins += 1
+                            folded = True
+                            break
+                    else:
+                        raise_amt = random.randint(0, player_chips // 2)
+                        await ctx.send('\n{} raises {} chips\n'.format(client.user.display_name, raise_amt))
+                        computer_chips -= raise_amt
+                        pot += raise_amt
+                        raised = True
+                        first_turn = True
+                elif type(computer_strength) == list:
+                    rand_choice = random.randint(0, 1000000)
+                    if rand_choice % 2 == 0 or rand_choice % 3 == 0:
+                        ## raise
+                        raise_amt = random.randint(0, player_chips // 2)
+                        await ctx.send('\n{} raises {} chips\n'.format(client.user.display_name, raise_amt))
+                        computer_chips -= raise_amt
+                        pot += raise_amt
+                        raised = True
+                        first_turn = True
+                    else:
+                        await ctx.send('\n{} folds\n'.format(client.user.display_name))
+                        if computer_wins == 0:
+                            computer_wins = 0
+                            player_chips += pot
+                        else:
+                            computer_wins -= 1
+                            player_chips += pot
+                        player_wins += 1
+                        folded = True
+                        break
+                elif computer_strength >= player_strength:
                     ## raise
                     raise_amt = random.randint(0, player_chips // 2)
                     await ctx.send('\n{} raises {} chips\n'.format(client.user.display_name, raise_amt))
