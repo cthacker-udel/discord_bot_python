@@ -1959,6 +1959,8 @@ async def find_x(ctx):
     first_turn = False
     guessed = False ## user has guessed successfully
     user_points = 0
+    consecutive_guesses = 1
+    consecutive_guessing = False
     while True: ## Game loop
 
         ## X <--- targets, O <--- already guessed spots, when target is guessed, turns into O and is displayed
@@ -2005,12 +2007,19 @@ async def find_x(ctx):
 
         if board[x][y] == 'X':
             board[x][y] = 'S'
-            user_points += 1
+            if consecutive_guessing:
+                consecutive_guesses += 1
+                await ctx.send('\nYou have consecutively guessed the target! This is your {} consecutive guess, equalling a total of an extra {} points!\n'.format(consecutive_guesses-1,user_points*consecutive_guesses))
+                user_points += user_points*consecutive_guesses
+            else:
+                user_points += 1
             guessed = True
+            consecutive_guessing = True
             await ctx.send('{} you have hit a target! [Total points : {}]'.format(ctx.message.author.mention,user_points))
         else:
             board[x][y] = 'O'
             await ctx.send('{} you have missed the target!'.format(ctx.message.author.mention))
+            consecutive_guessing = False
         await ctx.send(print_board(board))
 
 
