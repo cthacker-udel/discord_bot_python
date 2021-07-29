@@ -1889,4 +1889,130 @@ async def russian_roulette(ctx):
 async def go_fish(ctx):
     return None
 
+
+def print_board(board):
+
+    board_str = ''
+    board_str += '\tY\nX\t'
+    for i in range(len(board)):
+        board_str += str(i) + '\t '
+    board_str += '\n'
+    for i in range(len(board)):
+        board_str += str(i) + '\t'
+        for j in range(len(board[i]) - 1):
+            if board[i][j] == 'X':
+                board_str += '[]' + '\t'
+            elif board[i][j] == 'O':
+                board_str += 'O' + '\t'
+            else:
+                board_str += board[i][j] + '\t'
+        board_str += board[i][len(board[i]) - 1]
+        board_str += '\n'
+    return board_str
+
+@client.command(aliases=['find'])
+async def find_x(ctx):
+    """
+
+    Description : This game will consist of the computer generating a NxN matrix, and hiding a letter x under one of the squares, the user
+    will guess which square it is in, and the computer will tell the user whether they guessed correctly or not, and depending on how many
+    guesses they made, and how many points they scored. (2 guesses right in a row earns double points! and 3 = x3 and it keeps multiplying)
+    depending on how many points are acquired, an emoji is sent into the chat of either a gold, bronze, or silver medal
+
+    Addition : The bot tells the user whether they are close or far away, depending on how close their guess is to the hidden letter,
+    (sometimes it's flipped)
+
+    """
+
+    board = []
+
+    await ctx.send('\nThe rules of the game are : \n\n1)You will enter a single digit to specify the matrix size\n\n2)The matrix will be generated, and one x will be hidden, the bot will announce when the x has been hidden and the game will commence\n\n3)The user will then input coordinates x,y to guess where the hidden x is, if the user is right they earn one point, if the user is wrong, they earn 0 points, if the user guesses 2 spots consecutively right, then they earn 2x score, and 3 for 3x, 4 for 4x and so on\n\n4)Once all spaces have been guessed, the game ends, and the user\'s score is displayed, along with an emoji signifying if the user has scored gold, silver, or bronze\n\n5)The user then is given the option to either keep playing, or end the game')
+
+    await ctx.send('\n------------------------------------------END OF RULES------------------------------------------\n')
+    while True:
+        await ctx.send("\nUser : Enter a single number to specify the dimensions of the NxN matrix\n")
+        answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+        try:
+            answer = int(answer.content)
+            break
+        except Exception as e:
+            await ctx.send("\nEnter valid input\n")
+    await ctx.send('\nGenerating board of {}x{} size\n'.format(answer,answer))
+    for i in range(answer):
+        board_row = []
+        for j in range(answer):
+            board_row.append('[]')
+        board.append(board_row)
+
+    """board_str = ''
+    board_str += '\tY\nX\t'
+    for i in range(len(board)):
+        board_str += str(i) + '\t '
+    board_str += '\n'
+    for i in range(len(board)):
+        board_str += str(i) + '\t'
+        for j in range(len(board[i])-1):
+            board_str += board[i][j] + '\t'
+        board_str += board[i][len(board[i])-1]
+        board_str += '\n'"""
+
+    first_turn = False
+    guessed = False ## user has guessed successfully
+    user_points = 0
+    while True: ## Game loop
+
+        ## X <--- targets, O <--- already guessed spots, when target is guessed, turns into O and is displayed
+
+        ## computer hides x first
+        rand_x = 0
+        rand_y = 0
+
+        if not first_turn or guessed: # must hide on first turn and the sequential turns
+            await ctx.send('\n{} is hiding the x in the spot first'.format(client.user.display_name))
+
+            ## generate random x
+            rand_x = random.randint(0,len(board)-1)
+            rand_y = random.randint(0,len(board[0])-1)
+
+            while board[rand_x][rand_y] == 'X' or board[rand_x][rand_y] == 'O':
+                rand_x = random.randint(0, len(board)-1)
+                rand_y = random.randint(0, len(board[0])-1)
+            board[rand_x][rand_y] = 'X'
+            guessed = False
+
+            if not first_turn:
+                await ctx.send('\n{} has hidden the first target\n'.format(client.user.display_name))
+            else:
+                await ctx.send('\n{} has hidden the target\n'.format(client.user.display_name))
+
+        ## get user input first
+        while True:
+            await ctx.send('\nUser : Enter input in x,y format exactly, any malformed input will result in re-inputting data\n')
+            msg = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+            try:
+                msg = msg.content.split(',')
+                x = int(msg[0])
+                y = int(msg[1])
+                if board[x][y] == 'O' or board[x][y] == 'S':
+                    await ctx.send('\nBoard space has already been selected, re-input values\n')
+                    continue
+                if not first_turn: ## first turn triggered, game initiated
+                    first_turn = True
+                break
+            except Exception as e:
+                await ctx.send('\nMalformed input : Resubmit input\n')
+                continue
+
+        if board[x][y] == 'X':
+            board[x][y] = 'S'
+            user_points += 1
+            guessed = True
+            await ctx.send('{} you have hit a target! [Total points : {}]'.format(ctx.message.author.mention,user_points))
+        else:
+            board[x][y] = 'O'
+            await ctx.send('{} you have missed the target!'.format(ctx.message.author.mention))
+        await ctx.send(print_board(board))
+
+
+
 client.run(get_token()) ## make sure to delete before committing
