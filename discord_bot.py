@@ -2341,20 +2341,24 @@ async def maze_game(ctx):
     curr_player_strength = 0
     if difficulty == 0:
         ## easy
-        curr_player_strength = 20
+        curr_player_strength = random.randint(board_size,board_size + board_size)
     elif difficulty == 1:
         ## medium
-        curr_player_strength = 18
+        curr_player_strength = random.randint(board_size-2,board_size+board_size-(board_size // 10))
     elif difficulty == 2:
         ## hard
-        curr_player_strength = 15
+        curr_player_strength = random.randint(board_size-4,board_size+board_size-(board_size // 9))
     elif difficulty == 3:
         ## very hard
-        curr_player_strength = 10
+        curr_player_strength = random.randint(board_size-6,board_size+board_size-(board_size // 8))
 
     while True:
 
         await ctx.send(print_maze(board))
+        if curr_player_strength == 0:
+            await ctx.send('\Player\'s current strength is 0 : Game Over')
+            break
+        await ctx.send('\nPlayer\'s current strength : {}'.format(curr_player_strength))
         await ctx.send('\nUser : Enter direction to move (u/d/l/r)')
         answer = await client.wait_for('message',check=lambda message : message.author == ctx.author)
         try:
@@ -2422,48 +2426,521 @@ async def maze_game(ctx):
                         ## player has lost
                         await ctx.send('\n{} has lost the game, their strength dropped to {}!'.format(ctx.message.author.mention,curr_player_strength))
                         break
+                    else:
+                        board[curr_player_x+1][curr_player_y] = 'S'
+                        board[curr_player_x][curr_player_y] = 'o'
+                        curr_player_x += 1
                 elif board[curr_player_x+1][curr_player_y] == '-' or board[curr_player_x+1][curr_player_y] == 'I':
                     ## trying to move into wall (expend strength to break through)
                     await ctx.send('\nYou are moving towards a wall\n')
+                    if difficulty == 0:
+                        ## easy
+                        expense = random.randint(1,4)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x+1][curr_player_y] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_x += 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                    elif difficulty == 1:
+                        ## medium
+                        expense = random.randint(2,5)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x+1][curr_player_y] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_x += 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                    elif difficulty == 2:
+                        ## hard
+                        expense = random.randint(3,6)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x+1][curr_player_y] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_x += 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                    elif difficulty == 3:
+                        expense = random.randint(4,7)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x+1][curr_player_y] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_x += 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                        ## very hard
                 else:
                     await ctx.send('\nSuccessful move, no objects on space\n')
                     board[curr_player_x+1][curr_player_y] = 'S'
                     board[curr_player_x][curr_player_y] = 'o'
                     curr_player_x += 1
+                    curr_player_strength -= 1
             elif answer == 'u':
                 # move up
                 if curr_player_x == 0:
                     ## trying to move out of bounds
                     await ctx.send('\nAttempting to move out of bounds of the board, choose another direction\n')
+                    continue
                 elif board[curr_player_x-1][curr_player_y] == 'E':
                     ## reached ending
                     await ctx.send('\nYou have reached the ending!\n')
+                    break
                 elif board[curr_player_x-1][curr_player_y] == 'F':
                     ## moved onto food
                     await ctx.send('\nYou have reached a food object\n')
+                    if difficulty == 0:
+                        ## easy
+                        rand_food = random.randint(5,15)
+                        await ctx.send('\nYour strength increases by {}!'.format(rand_food))
+                        curr_player_strength += rand_food
+                    elif difficulty == 1:
+                        ## medium
+                        rand_food = random.randint(4,13)
+                        await ctx.send('\nYour strength increases by {}!'.format(rand_food))
+                        curr_player_strength += rand_food
+                    elif difficulty == 2:
+                        ## hard
+                        rand_food = random.randint(3,12)
+                        await ctx.send('\nYour strength increases by {}!'.format(rand_food))
+                        curr_player_strength += rand_food
+                    elif difficulty == 3:
+                        ## very hard
+                        rand_food = random.randint(3,10)
+                        await ctx.send('\nYour strenth increases by {}!'.format(rand_food))
+                        curr_player_strength += rand_food
+                    board[curr_player_x-1][curr_player_y] = 'S'
+                    board[curr_player_x][curr_player_y] = 'o'
+                    curr_player_x -= 1
                 elif board[curr_player_x-1][curr_player_y] == 'T':
                     ## moved onto trap
                     await ctx.send('\nYou have stepped on a trap!\n')
+                    if difficulty == 0:
+                        ## easy
+                        rand_loss = random.randint(1, 5)
+                        curr_player_strength -= rand_loss
+                        await ctx.send('\nYou have lost {} strength!'.format(rand_loss))
+                    elif difficulty == 1:
+                        ## medium
+                        rand_loss = random.randint(3, 6)
+                        curr_player_strength -= rand_loss
+                        await ctx.send('\nYou have lost {} strength!'.format(rand_loss))
+                    elif difficulty == 2:
+                        ## hard
+                        rand_loss = random.randint(5, 7)
+                        curr_player_strength -= rand_loss
+                        await ctx.send('\nYou have lost {} strength!'.format(rand_loss))
+                    elif difficulty == 3:
+                        ## very hard
+                        rand_loss = random.randint(7, 8)
+                        curr_player_strength -= rand_loss
+                        await ctx.send('\nYou have lost {} strength!'.format(rand_loss))
+                    if curr_player_strength <= 0:
+                        ## player has lost
+                        await ctx.send(
+                            '\n{} has lost the game, their strength dropped to {}!'.format(ctx.message.author.mention,
+                                                                                           curr_player_strength))
+                        break
+                    else:
+                        board[curr_player_x - 1][curr_player_y] = 'S'
+                        board[curr_player_x][curr_player_y] = 'o'
+                        curr_player_x -= 1
                 elif board[curr_player_x-1][curr_player_y] == '-' or board[curr_player_x-1][curr_player_y] == 'I':
                     ## trying to move into wall (expend strength to break through)
                     await ctx.send('\nYou are moving towards a wall!\n')
+                    if difficulty == 0:
+                        ## easy
+                        expense = random.randint(1,4)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x-1][curr_player_y] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_x -= 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                    elif difficulty == 1:
+                        ## medium
+                        expense = random.randint(2,5)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x-1][curr_player_y] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_x -= 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                    elif difficulty == 2:
+                        ## hard
+                        expense = random.randint(3,6)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x-1][curr_player_y] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_x -= 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                    elif difficulty == 3:
+                        expense = random.randint(4,7)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x-1][curr_player_y] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_x -= 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                else:
+                    await ctx.send('\nSuccessful move, no objects on space\n')
+                    board[curr_player_x - 1][curr_player_y] = 'S'
+                    board[curr_player_x][curr_player_y] = 'o'
+                    curr_player_x -= 1
+                    curr_player_strength -= 1
             elif answer == 'l':
                 # move left
                 if curr_player_y == 0:
                     ## trying to move out of bounds
                     await ctx.send('\nAttempting to move out of bounds of the board, choose another direction\n')
+                    continue
                 elif board[curr_player_x][curr_player_y-1] == 'E':
                     ## reached ending
                     await ctx.send('\nYou have reached the ending!\n')
+                    break
                 elif board[curr_player_x][curr_player_y-1] == 'F':
                     ## moved onto food
                     await ctx.send('\nYou have reached a food object\n')
+                    if difficulty == 0:
+                        ## easy
+                        rand_food = random.randint(5,15)
+                        await ctx.send('\nYour strength increases by {}!'.format(rand_food))
+                        curr_player_strength += rand_food
+                    elif difficulty == 1:
+                        ## medium
+                        rand_food = random.randint(4,13)
+                        await ctx.send('\nYour strength increases by {}!'.format(rand_food))
+                        curr_player_strength += rand_food
+                    elif difficulty == 2:
+                        ## hard
+                        rand_food = random.randint(3,12)
+                        await ctx.send('\nYour strength increases by {}!'.format(rand_food))
+                        curr_player_strength += rand_food
+                    elif difficulty == 3:
+                        ## very hard
+                        rand_food = random.randint(3,10)
+                        await ctx.send('\nYour strenth increases by {}!'.format(rand_food))
+                        curr_player_strength += rand_food
+                    board[curr_player_x][curr_player_y - 1] = 'S'
+                    board[curr_player_x][curr_player_y] = 'o'
+                    curr_player_y -= 1
                 elif board[curr_player_x][curr_player_y-1] == 'T':
                     ## moved onto trap
                     await ctx.send('\nYou have stepped on a trap\n')
+                    if difficulty == 0:
+                        ## easy
+                        rand_loss = random.randint(1, 5)
+                        curr_player_strength -= rand_loss
+                        await ctx.send('\nYou have lost {} strength!'.format(rand_loss))
+                    elif difficulty == 1:
+                        ## medium
+                        rand_loss = random.randint(3, 6)
+                        curr_player_strength -= rand_loss
+                        await ctx.send('\nYou have lost {} strength!'.format(rand_loss))
+                    elif difficulty == 2:
+                        ## hard
+                        rand_loss = random.randint(5, 7)
+                        curr_player_strength -= rand_loss
+                        await ctx.send('\nYou have lost {} strength!'.format(rand_loss))
+                    elif difficulty == 3:
+                        ## very hard
+                        rand_loss = random.randint(7, 8)
+                        curr_player_strength -= rand_loss
+                        await ctx.send('\nYou have lost {} strength!'.format(rand_loss))
+                    if curr_player_strength <= 0:
+                        ## player has lost
+                        await ctx.send(
+                            '\n{} has lost the game, their strength dropped to {}!'.format(ctx.message.author.mention,
+                                                                                           curr_player_strength))
+                        break
+                    else:
+                        board[curr_player_x][curr_player_y - 1] = 'S'
+                        board[curr_player_x][curr_player_y] = 'o'
+                        curr_player_y -= 1
                 elif board[curr_player_x][curr_player_y-1] == '-' or board[curr_player_x][curr_player_y-1] == 'I':
                     ## trying to move into wall (expend strength to break through)
                     await ctx.send('\nYou are moving towards a wall!\n')
+                    if difficulty == 0:
+                        ## easy
+                        expense = random.randint(1,4)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x][curr_player_y-1] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_y -= 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                    elif difficulty == 1:
+                        ## medium
+                        expense = random.randint(2,5)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x][curr_player_y-1] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_y -= 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                    elif difficulty == 2:
+                        ## hard
+                        expense = random.randint(3,6)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x][curr_player_y-1] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_y -= 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                    elif difficulty == 3:
+                        expense = random.randint(4,7)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x][curr_player_y-1] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_y -= 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                else:
+                    await ctx.send('\nSuccessful move, no objects on space\n')
+                    board[curr_player_x][curr_player_y-1] = 'S'
+                    board[curr_player_x][curr_player_y] = 'o'
+                    curr_player_y -= 1
+                    curr_player_strength -= 1
             elif answer == 'r':
                 # move right
                 if curr_player_y == len(board[0])-1:
@@ -2472,15 +2949,190 @@ async def maze_game(ctx):
                 elif board[curr_player_x][curr_player_y+1] == 'E':
                     ## reached ending
                     await ctx.send('\nYou have reached the ending!\n')
+                    break
                 elif board[curr_player_x][curr_player_y+1] == 'F':
                     ## moved onto food
                     await ctx.send('\nYou have reached a food object!\n')
+                    if difficulty == 0:
+                        ## easy
+                        rand_food = random.randint(5,15)
+                        await ctx.send('\nYour strength increases by {}!'.format(rand_food))
+                        curr_player_strength += rand_food
+                    elif difficulty == 1:
+                        ## medium
+                        rand_food = random.randint(4,13)
+                        await ctx.send('\nYour strength increases by {}!'.format(rand_food))
+                        curr_player_strength += rand_food
+                    elif difficulty == 2:
+                        ## hard
+                        rand_food = random.randint(3,12)
+                        await ctx.send('\nYour strength increases by {}!'.format(rand_food))
+                        curr_player_strength += rand_food
+                    elif difficulty == 3:
+                        ## very hard
+                        rand_food = random.randint(3,10)
+                        await ctx.send('\nYour strenth increases by {}!'.format(rand_food))
+                        curr_player_strength += rand_food
+                    board[curr_player_x][curr_player_y + 1] = 'S'
+                    board[curr_player_x][curr_player_y] = 'o'
+                    curr_player_y += 1
                 elif board[curr_player_x][curr_player_y+1] == 'T':
                     ## moved onto trap
                     await ctx.send('\nYou have stepped on a trap!\n')
+                    if difficulty == 0:
+                        ## easy
+                        rand_loss = random.randint(1, 5)
+                        curr_player_strength -= rand_loss
+                        await ctx.send('\nYou have lost {} strength!'.format(rand_loss))
+                    elif difficulty == 1:
+                        ## medium
+                        rand_loss = random.randint(3, 6)
+                        curr_player_strength -= rand_loss
+                        await ctx.send('\nYou have lost {} strength!'.format(rand_loss))
+                    elif difficulty == 2:
+                        ## hard
+                        rand_loss = random.randint(5, 7)
+                        curr_player_strength -= rand_loss
+                        await ctx.send('\nYou have lost {} strength!'.format(rand_loss))
+                    elif difficulty == 3:
+                        ## very hard
+                        rand_loss = random.randint(7, 8)
+                        curr_player_strength -= rand_loss
+                        await ctx.send('\nYou have lost {} strength!'.format(rand_loss))
+                    if curr_player_strength <= 0:
+                        ## player has lost
+                        await ctx.send(
+                            '\n{} has lost the game, their strength dropped to {}!'.format(ctx.message.author.mention,
+                                                                                           curr_player_strength))
+                        break
+                    else:
+                        board[curr_player_x][curr_player_y + 1] = 'S'
+                        board[curr_player_x][curr_player_y] = 'o'
+                        curr_player_y += 1
                 elif board[curr_player_x][curr_player_y+1] == '-' or board[curr_player_x][curr_player_y+1] == 'I':
                     ## trying to move into wall (expend strength to break through)
                     await ctx.send('\nYou are moving towards a wall!\n')
+                    if difficulty == 0:
+                        ## easy
+                        expense = random.randint(1,4)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x][curr_player_y + 1] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_y += 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                    elif difficulty == 1:
+                        ## medium
+                        expense = random.randint(2,5)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x][curr_player_y + 1] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_y += 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                    elif difficulty == 2:
+                        ## hard
+                        expense = random.randint(3,6)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x][curr_player_y + 1] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_y += 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                    elif difficulty == 3:
+                        expense = random.randint(4,7)
+                        await ctx.send('\nYou can expend {} strength to break through the wall. (Y/N)?'.format(expense))
+                        while True:
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            try:
+                                answer = str(answer.content)
+                                if answer.upper() == 'Y':
+                                    #yes
+                                    if curr_player_strength < expense:
+                                        await ctx.send('\nYour player does not have enough strength to expend to break through the wall\n')
+                                        break
+                                    else:
+                                        curr_player_strength -= expense
+                                        board[curr_player_x][curr_player_y + 1] = 'S'
+                                        board[curr_player_x][curr_player_y] = 'o'
+                                        curr_player_y += 1
+                                        curr_player_strength -= 1
+                                        break
+                                elif answer.upper() == 'N':
+                                    #no
+                                    break
+                                else:
+                                    #invalid input
+                                    await ctx.send('\Invalid input\n')
+                            except Exception as e:
+                                await ctx.send('\nInvalid input\n')
+                                continue
+                else:
+                    await ctx.send('\nSuccessful move, no objects on space\n')
+                    board[curr_player_x][curr_player_y+1] = 'S'
+                    board[curr_player_x][curr_player_y] = 'o'
+                    curr_player_y += 1
+                    curr_player_strength -= 1
             else:
                 await ctx.send('\nEnter valid input\n')
         except Exception as e:
