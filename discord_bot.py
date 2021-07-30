@@ -1899,14 +1899,13 @@ def print_board(board):
     board_str += '\n'
     for i in range(len(board)):
         board_str += str(i) + '\t'
-        for j in range(len(board[i]) - 1):
+        for j in range(len(board[i])):
             if board[i][j] == 'X':
                 board_str += '[]' + '\t'
             elif board[i][j] == 'O':
                 board_str += 'O' + '\t'
             else:
                 board_str += board[i][j] + '\t'
-        board_str += board[i][len(board[i]) - 1]
         board_str += '\n'
     return board_str
 
