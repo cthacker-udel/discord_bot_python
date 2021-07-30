@@ -1961,6 +1961,10 @@ async def find_x(ctx):
     user_points = 0
     consecutive_guesses = 1
     consecutive_guessing = False
+    hits = 0
+    misses = 0
+    consecutive_hits = 0
+    guesses = 0
     while True: ## Game loop
 
         ## X <--- targets, O <--- already guessed spots, when target is guessed, turns into O and is displayed
@@ -1976,10 +1980,11 @@ async def find_x(ctx):
             rand_x = random.randint(0,len(board)-1)
             rand_y = random.randint(0,len(board[0])-1)
 
-            while board[rand_x][rand_y] == 'X' or board[rand_x][rand_y] == 'O':
+            while board[rand_x][rand_y] == 'X' or board[rand_x][rand_y] == 'O' or board[rand_x][rand_y] == 'S':
                 rand_x = random.randint(0, len(board)-1)
                 rand_y = random.randint(0, len(board[0])-1)
             board[rand_x][rand_y] = 'X'
+            #await ctx.send('\nBot chooses spot {},{}'.format(rand_x,rand_y))
             guessed = False
 
             if not first_turn:
@@ -1998,6 +2003,7 @@ async def find_x(ctx):
                 if board[x][y] == 'O' or board[x][y] == 'S':
                     await ctx.send('\nBoard space has already been selected, re-input values\n')
                     continue
+                guesses += 1
                 if not first_turn: ## first turn triggered, game initiated
                     first_turn = True
                 break
@@ -2009,18 +2015,40 @@ async def find_x(ctx):
             board[x][y] = 'S'
             if consecutive_guessing:
                 consecutive_guesses += 1
+                consecutive_hits = max(consecutive_hits,consecutive_guesses-1)
+                hits += 1
                 await ctx.send('\nYou have consecutively guessed the target! This is your {} consecutive guess, equalling a total of an extra {} points!\n'.format(consecutive_guesses-1,user_points*consecutive_guesses))
                 user_points += user_points*consecutive_guesses
             else:
+                hits += 1
                 user_points += 1
             guessed = True
             consecutive_guessing = True
             await ctx.send('{} you have hit a target! [Total points : {}]'.format(ctx.message.author.mention,user_points))
         else:
             board[x][y] = 'O'
+            misses += 1
             await ctx.send('{} you have missed the target!'.format(ctx.message.author.mention))
             consecutive_guessing = False
-        await ctx.send(print_board(board))
+        board_str = print_board(board)
+        if guesses == answer*answer:
+            break
+        await ctx.send(board_str)
+
+    await ctx.send('Congratulations on completing the game! Here are your stats!\nMisses : {}\nHits : {}\nConsecutive Hits : {}\nPoints : {}'.format(misses,hits,consecutive_hits,user_points))
+
+
+
+@client.command(aliases=['maze'])
+async def maze_game(ctx):
+
+    """
+
+    Details: The player begins at the place specified by the letter S and the player's cursor is X, they traverse through walls |
+    and can possibly run into traps, which decrease their strength, if they find food(F) then they gain strength(random value),
+    the goal is to use the commands of UDRL(up down right left) to reach the end of the maze signified by E
+
+    """
 
 
 
