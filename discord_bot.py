@@ -2351,50 +2351,70 @@ async def maze_game(ctx):
                 # move down
                 if curr_player_x == len(board)-1:
                     ## trying to move out of bounds
+                    await ctx.send('\nAttempting to move out of bounds of the board, choose another direction\n')
                 elif board[curr_player_x+1][curr_player_y] == 'E':
                     ## reached ending
+                    await ctx.send('\nYou have reached the ending!\n')
                 elif board[curr_player_x+1][curr_player_y] == 'F':
                     ## moved onto food
+                    await ctx.send('\nYou have reached a food object!\n')
                 elif board[curr_player_x+1][curr_player_y] == 'T':
                     ## moved onto trap
+                    await ctx.send('\nYou have stepped on a trap!\n')
                 elif board[curr_player_x+1][curr_player_y] == '-' or board[curr_player_x+1][curr_player_y] == 'I':
                     ## trying to move into wall (expend strength to break through)
+                    await ctx.send('\nYou are moving towards a wall\n')
             elif answer == 'u':
                 # move up
                 if curr_player_x == 0:
                     ## trying to move out of bounds
+                    await ctx.send('\nAttempting to move out of bounds of the board, choose another direction\n')
                 elif board[curr_player_x-1][curr_player_y] == 'E':
                     ## reached ending
+                    await ctx.send('\nYou have reached the ending!\n')
                 elif board[curr_player_x-1][curr_player_y] == 'F':
                     ## moved onto food
+                    await ctx.send('\nYou have reached a food object\n')
                 elif board[curr_player_x-1][curr_player_y] == 'T':
                     ## moved onto trap
+                    await ctx.send('\nYou have stepped on a trap!\n')
                 elif board[curr_player_x-1][curr_player_y] == '-' or board[curr_player_x-1][curr_player_y] == 'I':
                     ## trying to move into wall (expend strength to break through)
+                    await ctx.send('\nYou are moving towards a wall!\n')
             elif answer == 'l':
                 # move left
                 if curr_player_y == 0:
                     ## trying to move out of bounds
+                    await ctx.send('\nAttempting to move out of bounds of the board, choose another direction\n')
                 elif board[curr_player_x][curr_player_y-1] == 'E':
                     ## reached ending
+                    await ctx.send('\nYou have reached the ending!\n')
                 elif board[curr_player_x][curr_player_y-1] == 'F':
                     ## moved onto food
+                    await ctx.send('\nYou have reached a food object\n')
                 elif board[curr_player_x][curr_player_y-1] == 'T':
                     ## moved onto trap
+                    await ctx.send('\nYou have stepped on a trap\n')
                 elif board[curr_player_x][curr_player_y-1] == '-' or board[curr_player_x][curr_player_y-1] == 'I':
                     ## trying to move into wall (expend strength to break through)
+                    await ctx.send('\nYou are moving towards a wall!\n')
             elif answer == 'r':
                 # move right
                 if curr_player_y == len(board[0])-1:
                     ## trying to move out of bounds
+                    await ctx.send('\nAttempting to move out of bounds of the board, choose another direction\n')
                 elif board[curr_player_x][curr_player_y+1] == 'E':
                     ## reached ending
+                    await ctx.send('\nYou have reached the ending!\n')
                 elif board[curr_player_x][curr_player_y+1] == 'F':
                     ## moved onto food
+                    await ctx.send('\nYou have reached a food object!\n')
                 elif board[curr_player_x][curr_player_y+1] == 'T':
                     ## moved onto trap
+                    await ctx.send('\nYou have stepped on a trap!\n')
                 elif board[curr_player_x][curr_player_y+1] == '-' or board[curr_player_x][curr_player_y+1] == 'I':
                     ## trying to move into wall (expend strength to break through)
+                    await ctx.send('\nYou are moving towards a wall!\n')
             else:
                 await ctx.send('\nEnter valid input\n')
         except Exception as e:
