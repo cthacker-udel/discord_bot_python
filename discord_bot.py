@@ -2038,6 +2038,21 @@ async def find_x(ctx):
     await ctx.send('Congratulations on completing the game! Here are your stats!\nMisses : {}\nHits : {}\nConsecutive Hits : {}\nPoints : {}'.format(misses,hits,consecutive_hits,user_points))
 
 
+def print_maze(board):
+
+    ## Ignore printing T values, print F(ood) values, walls and start and end point
+
+    board_str = ''
+
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if board[i][j] == 'T':
+                board_str += 'o'
+            else:
+                board_str += board[i][j]
+        board_str += '\n'
+    return board_str
+
 
 @client.command(aliases=['maze'])
 async def maze_game(ctx):
@@ -2048,7 +2063,322 @@ async def maze_game(ctx):
     and can possibly run into traps, which decrease their strength, if they find food(F) then they gain strength(random value),
     the goal is to use the commands of UDRL(up down right left) to reach the end of the maze signified by E
 
+    Default board size will be 10x10
+
     """
+
+    """
+    
+    Difficulties :
+    0 - Easy [default]
+    1 - Medium
+    2 - Hard
+    3 - Very Hard
+    
+    """
+
+    difficulty = 0
+
+    while True:
+        await ctx.send('\n{} enter the difficulty level : \n0)Easy\n1)Medium\n2)Hard\n3)Very Hard'.format(ctx.message.author.mention))
+        answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+        try:
+            answer = int(answer.content)
+            difficulty = answer
+            break
+        except Exception as e:
+            await ctx.send('\nMalformed input : Please re-input values\n')
+
+    board_size = 10
+    tot_size = board_size*board_size
+
+    while True:
+        await ctx.send('\n{} enter the board size(only one dimension size needed, will generate NxN board)'.format(ctx.message.author.mention))
+        answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+        try:
+            answer = int(answer.content)
+            board_size = answer
+            break
+        except Exception as e:
+            await ctx.send('\nMalformed input : Please re-input values\n')
+
+    ## generating board
+
+    board = []
+
+    await ctx.send('\nGenerating board of {}x{} size'.format(board_size,board_size))
+
+    for i in range(board_size):
+        board_sub_list = []
+        for j in range(board_size):
+            board_sub_list.append('o')
+        board.append(board_sub_list)
+
+
+
+    await ctx.send('\nSetting starting point')
+    ## generate start point
+
+    start_point = random.randint(0, len(board) - 1)
+
+    while board[start_point][0] != 'o':
+        start_point = random.randint(0, len(board) - 1)
+
+    board[start_point][0] = 'S'
+
+    ## generate end point
+
+    await ctx.send('\nSetting end point\n')
+
+    end_point = random.randint(0, len(board) - 1)
+
+    while board[end_point][len(board[0]) - 1] != 'o':
+        end_point = random.randint(0, len(board) - 1)
+
+    board[end_point][len(board[0]) - 1] = 'E'
+
+    curr_player_x = start_point
+    curr_player_y = 0
+
+    await ctx.send('\nSettings traps for board\n')
+
+    if difficulty == 0:
+        ## generate random number between a tenth of the board size and
+        for i in range(tot_size // 15):
+            x = random.randint(0,len(board)-1)
+            y = random.randint(0,len(board[0])-1)
+            while board[x][y] != 'o':
+                x = random.randint(0, len(board) - 1)
+                y = random.randint(0, len(board[0]) - 1)
+            board[x][y] = 'T'
+        ## traps set for easy
+    elif difficulty == 1:
+        ## medium
+        for i in range(tot_size // 14):
+            x = random.randint(0,len(board)-1)
+            y = random.randint(0,len(board[0])-1)
+            while board[x][y] != 'o':
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+            board[x][y] = 'T'
+        ## traps set
+    elif difficulty == 2:
+        ## hard
+        for i in range(tot_size // 13):
+            x = random.randint(0,len(board)-1)
+            y = random.randint(0,len(board[0])-1)
+            while board[x][y] != 'o':
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+            board[x][y] = 'T'
+        ## traps set
+    elif difficulty == 3:
+        ## very hard
+        for i in range(tot_size // 12):
+            x = random.randint(0,len(board)-1)
+            y = random.randint(0,len(board[0])-1)
+            while board[x][y] != 'o':
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+            board[x][y] = 'T'
+        ## traps set
+
+    ## setting food for board
+    #await ctx.send(print_maze(board))
+
+    if difficulty == 0:
+        ## easy
+        for i in range(tot_size // 12):
+            x = random.randint(0,len(board)-1)
+            y = random.randint(0,len(board[0])-1)
+            while board[x][y] != 'o':
+                x = random.randint(0, len(board) - 1)
+                y = random.randint(0, len(board[0]) - 1)
+            board[x][y] = 'F'
+        ## food has been set
+    elif difficulty == 1:
+        ## medium
+        for i in range(tot_size // 13):
+            x = random.randint(0,len(board)-1)
+            y = random.randint(0,len(board[0])-1)
+            while board[x][y] != 'o':
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+            board[x][y] = 'F'
+        ## food has been set
+    elif difficulty == 2:
+        ## hard
+        for i in range(tot_size // 14):
+            x = random.randint(0,len(board)-1)
+            y = random.randint(0,len(board[0])-1)
+            while board[x][y] != 'o':
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+            board[x][y] = 'F'
+        ## food has been set
+    elif difficulty == 3:
+        ## very hard
+        for i in range(tot_size // 15):
+            x = random.randint(0,len(board)-1)
+            y = random.randint(0,len(board[0])-1)
+            while board[x][y] != 'o':
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+            board[x][y] = 'F'
+        ## food has been set
+
+    #await ctx.send(print_maze(board))
+
+
+    await ctx.send('\nFood has been set on the board\n')
+
+    ## settings walls
+
+    if difficulty == 0:
+        ## easy
+        for i in range(tot_size // 12):
+            v_or_h = random.randint(0,1)
+            if v_or_h == 0:
+                ## horizontal
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+                while board[x][y] != 'o':
+                    x = random.randint(0, len(board) - 1)
+                    y = random.randint(0, len(board[0]) - 1)
+                board[x][y] = '-'
+            elif v_or_h == 1:
+                ## vertical
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+                while board[x][y] != 'o':
+                    x = random.randint(0, len(board) - 1)
+                    y = random.randint(0, len(board[0]) - 1)
+                board[x][y] = 'I'
+    elif difficulty == 1:
+        ## medium
+        for i in range(tot_size // 13):
+            v_or_h = random.randint(0,1)
+            if v_or_h == 0:
+                ## horizontal
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+                while board[x][y] != 'o':
+                    x = random.randint(0, len(board) - 1)
+                    y = random.randint(0, len(board[0]) - 1)
+                board[x][y] = '-'
+            elif v_or_h == 1:
+                ## vertical
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+                while board[x][y] != 'o':
+                    x = random.randint(0, len(board) - 1)
+                    y = random.randint(0, len(board[0]) - 1)
+                board[x][y] = 'I'
+    elif difficulty == 2:
+        ## hard
+        for i in range(tot_size // 14):
+            v_or_h = random.randint(0,1)
+            if v_or_h == 0:
+                ## horizontal
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+                while board[x][y] != 'o':
+                    x = random.randint(0, len(board) - 1)
+                    y = random.randint(0, len(board[0]) - 1)
+                board[x][y] = '-'
+            elif v_or_h == 1:
+                ## vertical
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+                while board[x][y] != 'o':
+                    x = random.randint(0, len(board) - 1)
+                    y = random.randint(0, len(board[0]) - 1)
+                board[x][y] = 'I'
+    elif difficulty == 3:
+        ## very hard
+        for i in range(tot_size // 15):
+            v_or_h = random.randint(0,1)
+            if v_or_h == 0:
+                ## horizontal
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+                while board[x][y] != 'o':
+                    x = random.randint(0, len(board) - 1)
+                    y = random.randint(0, len(board[0]) - 1)
+                board[x][y] = '-'
+            elif v_or_h == 1:
+                ## vertical
+                x = random.randint(0,len(board)-1)
+                y = random.randint(0,len(board[0])-1)
+                while board[x][y] != 'o':
+                    x = random.randint(0, len(board) - 1)
+                    y = random.randint(0, len(board[0]) - 1)
+                board[x][y] = 'I'
+
+    await ctx.send('\nWalls have been set\n')
+
+    #await ctx.send(print_maze(board))
+
+    """
+    
+    Set so far: traps, food, walls
+    
+    """
+
+    """
+    
+    Generated so far:
+    
+    Traps
+    Food
+    Walls
+    Start
+    End
+    
+    """
+
+    await ctx.send(print_maze(board))
+
+    await ctx.send('\nRules:\n1)Your player starts on the S symbol, should be located on the far-left\n2)Your goal is to get to the E(the end of the maze)\n3)Walls are signified with - and |\n4)Move your character with the u/d/l/r commands')
+
+    while True:
+
+        await ctx.send('\nUser : Enter direction to move (u/d/l/r)')
+        answer = await client.wait_for('message',check=lambda message : message.author == ctx.author)
+        try:
+            answer = answer.content.lower()
+            if answer == 'd':
+                # move down
+                if curr_player_x == len(board)-1:
+                    ## trying to move out of bounds
+                if board[curr_player_x+1][curr_player_y] == 'F':
+                    ## moved onto food
+                elif board[curr_player_x+1][curr_player_y] == 'T':
+                    ## moved onto trap
+                elif board[curr_player_x+1][curr_player_y] == '-' or board[curr_player_x+1][curr_player_y] == 'I':
+                    ## trying to move into wall (expend strength to break through)
+            elif answer == 'u':
+                # move up
+            elif answer == 'l':
+                # move left
+            elif answer == 'r':
+                # move right
+            else:
+                await ctx.send('\nEnter valid input\n')
+        except Exception as e:
+            await ctx.send('\nEnter valid input\n')
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
