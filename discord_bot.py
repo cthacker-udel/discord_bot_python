@@ -2351,7 +2351,9 @@ async def maze_game(ctx):
                 # move down
                 if curr_player_x == len(board)-1:
                     ## trying to move out of bounds
-                if board[curr_player_x+1][curr_player_y] == 'F':
+                elif board[curr_player_x+1][curr_player_y] == 'E':
+                    ## reached ending
+                elif board[curr_player_x+1][curr_player_y] == 'F':
                     ## moved onto food
                 elif board[curr_player_x+1][curr_player_y] == 'T':
                     ## moved onto trap
