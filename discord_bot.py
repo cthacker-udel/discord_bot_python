@@ -2053,6 +2053,100 @@ def print_maze(board):
     return board_str
 
 
+@client.command(aliases=['war'])
+async def war_game(ctx):
+
+    deck = generate_deck()
+    for i in range(7):
+        deck = shuffle(deck)
+    split = len(deck) // 2
+    player_hand = []
+    computer_hand = []
+    for i in range(len(deck)):
+        if len(player_hand) == split:
+            computer_hand.append(deck[i])
+        else:
+            player_hand.append(deck[i])
+    ## player hand and computer hand generated
+
+    player_wins = 0
+    computer_wins = 0
+    await ctx.send("\nThe game of war is as follows : both players get half of the deck, each play card on top, each player has option to shuffle deck before deal, player with most wins at end of game wins")
+
+    await ctx.send('\nLET THE GAMES BEGIN\n')
+    while len(player_hand) > 0 and len(computer_hand) > 0:
+        ## game loop
+        while True:
+            ## user input
+            await ctx.send("\nChoices :\n1)Shuffle\n2)Deal card")
+            answer = await client.wait_for('message',check=lambda message:message.author == ctx.author)
+            try:
+                answer = int(answer.content)
+                break
+            except Exception as e:
+                await ctx.send('\nInvalid input\n')
+                continue
+        if answer == 1:
+            ## shuffle
+            player_hand = shuffle(player_hand)
+        player_card,player_hand = deal(player_hand)
+
+        computer_generator = random.randint(1,100000)
+        if _is_prime(computer_generator):
+            ## computer shuffles
+            computer_hand = shuffle(computer_hand)
+        computer_card,computer_hand = deal(computer_hand)
+
+        await ctx.send('\n{} vs {}\n'.format(player_card.split(' ')[0],computer_card.split(' ')[0]))
+
+        result = war_showdown(player_card,computer_card)
+
+        if result == 1:
+            ## player won
+            await ctx.send('\nPlayer wins!\n')
+            player_wins += 1
+        elif result == 2:
+            await ctx.send('\nComputer wins!\n')
+            computer_wins += 1
+        else:
+            ## tie
+            await ctx.send('\nTie!\n')
+
+
+
+def war_showdown(card1,card2):
+
+    special_cards = {'Jack': 11, 'Queen': 12, 'King': 13, 'Ace': 14}
+
+    card1_rank = card1.split(' ')[0]
+    card2_rank = card2.split(' ')[0]
+
+    try:
+        card1_rank = int(card1_rank)
+    except Exception as e:
+        card1_rank = special_cards[card1_rank]
+
+    try:
+        card2_rank = int(card2_rank)
+    except Exception as e:
+        card2_rank = special_cards[card2_rank]
+
+    ## ranks acquired
+
+    if card1_rank > card2_rank:
+        ## player wins
+        return 1
+    elif card2_rank > card1_rank:
+        ## computer wins
+        return 2
+    else:
+        ## tie
+        return 3
+
+
+
+
+
 @client.command(aliases=['maze'])
 async def maze_game(ctx):
 
