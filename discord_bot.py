@@ -2574,7 +2574,7 @@ async def _box(ctx):
                         damage += (damage * (computer_player.upper_strength / 100))
                 elif attack_type == 4:
                     ## wheel kick
-                    await ctx.send('\n{} attacks with a wheel kick!'.format(computer_player))
+                    await ctx.send('\n{} attacks with a wheel kick!'.format(computer_player.name))
                     attack_type = 'l'
                     attack_specific = 'wk'
                     for i in range(computer_player.crit):
