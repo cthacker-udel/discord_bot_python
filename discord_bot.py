@@ -2113,6 +2113,141 @@ async def war_game(ctx):
             await ctx.send('\nTie!\n')
 
 
+class Player:
+
+    def __init__(self,name):
+        self.name = name
+        self.hp = 100
+        self.upper_body_health = 100
+        self.lower_body_health = 100
+        self.upper_strength = 1
+        self.lower_strength = 1
+        self.upper_defense = 1
+        self.lower_defense = 1
+        self.agility = 1
+
+    def set_computer(self,name):
+        if name.lower() == 'tyson': # mike tyson
+            self.hp = 150
+            self.upper_body_health = 200
+            self.lower_body_health = 100
+            self.upper_strength = 10 # max upper body
+            self.lower_strength = 5 # 5% increase among hits
+            self.upper_defense = 8 # 8% decrease among hits
+            self.lower_defense = 5 # 5% decrease among hits
+            self.agility = 5 # 5% chance to dodge attack
+        elif name.lower() == 'ali': #Ali
+            self.hp = 225
+            self.upper_body_health = 325
+            self.lower_body_health = 175
+            self.upper_strength = 10
+            self.lower_strength = 10
+            self.upper_defense = 11
+            self.lower_defense = 11
+            self.agility = 11
+        elif name.lower() == 'mayweather':
+            self.hp = 200
+            self.upper_body_health = 200
+            self.lower_body_health = 200
+            self.upper_strength = 6
+            self.lower_strength = 6
+            self.upper_defense = 10
+            self.lower_defense = 10
+            self.agility = 10
+        else:
+            ## default computer
+            self.hp = 100
+            self.upper_body_health = 100
+            self.lower_body_health = 100
+            self.upper_strength = 1
+            self.lower_strength = 1
+            self.upper_defense = 1
+            self.lower_defense = 1
+            self.agility = 1
+
+    async def change_stat(self,stat,context):
+        while True:
+            await context.send('\nEnter the stat\n')
+            answer = await client.wait_for('message',check= lambda message: message.author == context.author)
+            try:
+                answer = int(answer.content)
+                if stat.lower() == 'hp':
+                    self.hp = answer
+                    break
+                elif stat.lower() == 'upper_body_health':
+                    self.upper_body_health = answer
+                    break
+                elif stat.lower() == 'lower_body_health':
+                    self.lower_body_health = answer
+                    break
+                elif stat.lower() == 'upper_strength':
+                    self.upper_strength = answer
+                    break
+                elif stat.lower() == 'lower_strength':
+                    self.lower_strength = answer
+                    break
+                elif stat.lower() == 'upper_defense':
+                    self.upper_defense = answer
+                    break
+                elif stat.lower() == 'lower_defense':
+                    self.lower_defense = answer
+                    break
+                elif stat.lower() == 'agility':
+                    self.agility = answer
+                    break
+            except Exception as e:
+                await context.send('\nInvalid input\n')
+
+    def display_player(self):
+
+        return '-=-=-=-=PLAYER {}-=-=-=-=\nHP : {}\nUPPER BODY HEALTH : {}\nLOWER BODY HEALTH : {}\nUPPER STRENGTH : {}\nLOWER STRENGTH : {}\nUPPER DEFENSE : {}\nLOWER DEFENSE : {}\nAGILITY : {}'.format(self.name,self.hp,self.upper_body_health,self.lower_body_health,self.upper_strength,self.lower_strength,self.upper_defense,self.lower_defense,self.agility)
+
+
+@client.command(aliases=['box'])
+async def _box(ctx):
+
+    await ctx.send('\nWelcome to Bot Boxing!\n')
+    await ctx.send('\nThere are 4 types of attacks available to the player! 1)Uppercut\n2)Jab\n3)Leg Kick\n4)Wheel Kick')
+    await ctx.send('\n{} enter the name of your fighter!'.format(ctx.message.author.mention))
+    player_name = await client.wait_for('message',check= lambda message : message.author == ctx.author)
+    player1 = Player(player_name.content)
+    await ctx.send('\nDo you wish to edit your stats?(y/yes/n/no)')
+    answer = await client.wait_for('message',check = lambda message: message.author == ctx.author)
+    if answer.content.lower() == 'y' or answer.content.lower() == 'yes':
+        ## display menu
+        while True:
+            await ctx.send('\n-=-=-=Menu-=-=-=\n1)Display Player Stats\n2)Change HP\n3)Change Upper Body Health\n4)Change Lower Body Health\n5)Change Upper Strength\n6)Change Lower Strength\n7)Change Upper Defense\n8)Change Lower Defense\n9)Change Agility\n10)Exit Stat Change Station')
+            answer = await client.wait_for('message',check= lambda message : message.author == ctx.author)
+            try:
+                answer = int(answer.content)
+                if answer == 1:
+                    await ctx.send(player1.display_player())
+                elif answer == 2:
+                    await player1.change_stat('hp',ctx)
+                elif answer == 3:
+                    await player1.change_stat('upper_body_health',ctx)
+                elif answer == 4:
+                    await player1.change_stat('lower_body_health',ctx)
+                elif answer == 5:
+                    await player1.change_stat("upper_strength",ctx)
+                elif answer == 6:
+                    await player1.change_stat('lower_strength',ctx)
+                elif answer == 7:
+                    await player1.change_stat('upper_defense',ctx)
+                elif answer == 8:
+                    await player1.change_stat('lower_defense',ctx)
+                elif answer == 9:
+                    await player1.change_stat('agility',ctx)
+                else:
+                    break
+            except Exception as e:
+                await ctx.send('\nInvalid input\n')
+    else:
+        await ctx.send('\nAnswer was no\n')
+
+
+
+
 
 def war_showdown(card1,card2):
 
