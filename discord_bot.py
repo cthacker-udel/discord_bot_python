@@ -2291,6 +2291,7 @@ async def _box(ctx):
     crit = False
     attack_type = ''
     dodge = False
+    attacked = ''
 
     while True:
 
@@ -2391,10 +2392,13 @@ async def _box(ctx):
                     else:
                         damage = 50
                         damage += (damage * (player1.upper_strength / 100))
+                turn = 'c'
+                attacked = 'u'
+                break
         else:
             ## computer turn
             attack_type = random.randint(1,4)
-            if turn == 'u':
+            if attacked == 'u':
                 ## user attacked
                 if attack_type == 'u':
                     ## upper attack
@@ -2502,6 +2506,8 @@ async def _box(ctx):
                     else:
                         damage = 50
                         damage += (damage * (computer_player.upper_strength / 100))
+                turn = 'u'
+                attacked = 'c'
 
 
 
