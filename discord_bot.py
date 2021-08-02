@@ -2258,11 +2258,27 @@ async def _box(ctx):
                 await ctx.send('\nInvalid input\n')
 
     rand_choice = random.randint(1,2)
-
+    turn = ''
     if rand_choice == 1:
         turn = 'u'
     else:
         turn = 'c'
+
+    ### choose computer player
+    computer_player = ''
+    computer_players = ['rocky','ali','mayweather','tyson','default']
+    while True:
+        await ctx.send('\nChoose computer player, presets are :\n1)Default\n2)Ali\n3)Mayweather\n4)Tyson\n5)Rocky')
+        answer = await client.wait_for('message',check= lambda message : message.author == ctx.author)
+        try:
+            if answer.lower() in computer_players:
+                ## valid choice
+                computer_player = Player('')
+                computer_player.set_computer(answer)
+            else:
+                await ctx.send('\nInvalid choice\n')
+        except Exception as e:
+            await ctx.send('Invalid input')
 
     while True:
 
@@ -2285,6 +2301,19 @@ async def _box(ctx):
         8)When a player's hp reaches zero, the game ends
         
         """
+
+        if turn == 'u':
+            ## user turn
+            await ctx.send('\n{} : choose your move \n1)Uppercut\n2)Jab\n3)Leg Kick\n4)Wheel Kick')
+            while True:
+                answer = await client.wait_for('message',check=lambda message : message.author == ctx.author)
+                try:
+                    answer = int(answer.content)
+                except Exception as e:
+                    await ctx.send('\nInvalid input\n')
+        else:
+            ## computer turn
+            print('')
 
 
 
