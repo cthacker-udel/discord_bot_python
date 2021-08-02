@@ -2275,10 +2275,15 @@ async def _box(ctx):
                 ## valid choice
                 computer_player = Player('')
                 computer_player.set_computer(answer)
+                break
             else:
                 await ctx.send('\nInvalid choice\n')
         except Exception as e:
             await ctx.send('Invalid input')
+
+    damage = 0
+    rand_choice = 0
+    crit = False
 
     while True:
 
@@ -2311,6 +2316,28 @@ async def _box(ctx):
                     answer = int(answer.content)
                 except Exception as e:
                     await ctx.send('\nInvalid input\n')
+
+                if answer == 1:
+                    print('uppercut')
+                    for i in range(player1.agility):
+                        rand_choice = random.randint(1,10)
+                        if rand_choice == random.randint(1,10):
+                            ## crit landed
+                            crit = True
+                            break
+                    ## no crit landed
+                    if crit:
+                        damage = 75
+                        damage += (damage * (player1.upper_strength / 100))
+                    else:
+                        damage = 50
+                        damage += (damage * (player1.upper_strength / 100))
+                elif answer == 2:
+                    print('jab')
+                elif answer == 3:
+                    print('leg kick')
+                elif answer == 4:
+                    print('wheel kick')
         else:
             ## computer turn
             print('')
