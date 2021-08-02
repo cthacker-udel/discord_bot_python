@@ -2410,7 +2410,11 @@ async def _box(ctx):
                     if dodge:
                         await ctx.send('\n{}} dodged the attack!\n'.format(computer_player.name))
                     else:
-                        await ctx.send('\n{}} takes {} damage to their upper body!'.format(computer_player.name,damage))
+                        if computer_player.upper_body_health <= 0:
+                            computer_player.hp -= damage
+                        else:
+                            computer_player.upper_body_health -= damage
+                            await ctx.send('\n{}} takes {} damage to their upper body!'.format(computer_player.name,damage))
                 else:
                     ## lower attack
                     damage -= (damage * (computer_player.lower_defense / 100))
@@ -2424,7 +2428,11 @@ async def _box(ctx):
                     if dodge:
                         await ctx.send('\n{} dodged the attack!'.format(computer_player.name))
                     else:
-                        await ctx.send('\n{} takes {} damage to their lower body!'.format(computer_player.name))
+                        if computer_player.lower_body_health <= 0:
+                            computer_player.hp -= damage
+                        else:
+                            computer_player.lower_body_health -= damage
+                            await ctx.send('\n{} takes {} damage to their lower body!'.format(computer_player.name,damage))
 
 
 
