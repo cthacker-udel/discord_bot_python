@@ -2317,6 +2317,46 @@ async def _box(ctx):
 
         if turn == 'u':
             ## user turn
+            if attacked == 'c':
+                if attack_type == 'u':
+                    ## upper attack
+                    damage -= (damage * (player1.upper_defense / 100))
+                    for i in range(player1.agility):
+                        rand_choice = random.randint(1,10)
+                        if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
+                            dodge = True
+                            break
+                        else:
+                            dodge = False
+                    if dodge:
+                        await ctx.send('\n{} dodged the attack!'.format(player1.name))
+                    else:
+                        if player1.upper_body_health <= 0:
+                            damage += (damage * (player1.upper_defense / 100))
+                            player1.hp -= damage
+                        else:
+                            player1.upper_body_health -= damage
+                            await ctx.send('\n{} takes {} damage to their upper body!'.format(player1.name,damage))
+                else:
+                    ## lower attack
+                    damage -= (damage * (player1.lower_defense / 100))
+                    for i in range(player1.agility):
+                        rand_choice = random.randint(1,10)
+                        if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
+                            dodge = True
+                            break
+                        else:
+                            dodge = False
+                    if dodge:
+                        await ctx.send('\n{} dodged the attack!'.format(player1.name))
+                    else:
+                        if player1.lower_body_health <= 0:
+                            damage += (damage * (player1.lower_defense / 100))
+                            player1.hp -= damage
+                        else:
+                            player1.lower_body_health -= damage
+                            await ctx.send('\n{} takes {} damage to their upper body!'.format(player1.name,damage))
+
             await ctx.send('\n{} : choose your move \n1)Uppercut\n2)Jab\n3)Leg Kick\n4)Wheel Kick')
             while True:
                 answer = await client.wait_for('message',check=lambda message : message.author == ctx.author)
