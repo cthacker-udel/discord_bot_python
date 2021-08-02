@@ -2386,10 +2386,10 @@ async def _box(ctx):
                         else:
                             crit = False
                     if crit:
-                        damage = 50
+                        damage = 75
                         damage += (damage * (player1.upper_strength / 100))
                     else:
-                        damage = 25
+                        damage = 50
                         damage += (damage * (player1.upper_strength / 100))
         else:
             ## computer turn
@@ -2435,6 +2435,73 @@ async def _box(ctx):
                         else:
                             computer_player.lower_body_health -= damage
                             await ctx.send('\n{} takes {} damage to their lower body!'.format(computer_player.name,damage))
+            if computer_player.hp == 0:
+                await ctx.send('\n{} has been KO\'d! {} wins!\n'.format(computer_player.name,player1.name))
+            else:
+                if attack_type == 1:
+                    ## uppercut
+                    attack_type = 'u'
+                    for i in range(computer_player.crit):
+                        rand_choice = random.randint(1,10)
+                        if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
+                            crit = True
+                            break
+                        else:
+                            crit = False
+                    if crit:
+                        damage = 75
+                        damage += (damage * (computer_player.upper_strength / 100))
+                    else:
+                        damage = 50
+                        damage += (damage * (computer_player.upper_strength / 100))
+                elif attack_type == 2:
+                    ## jab
+                    attack_type = 'u'
+                    for i in range(computer_player.crit):
+                        rand_choice = random.randint(1,10)
+                        if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
+                            crit = True
+                            break
+                        else:
+                            crit = False
+                    if crit:
+                        damage = 37.5
+                        damage += (damage * (computer_player.upper_strength / 100))
+                    else:
+                        damage = 25
+                        damage += (damage * (computer_player.upper_strength / 100))
+                elif attack_type == 3:
+                    ## leg kick
+                    attack_type = 'l'
+                    for i in range(computer_player.crit):
+                        rand_choice = random.randint(1,10)
+                        if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
+                            crit = True
+                            break
+                        else:
+                            crit = False
+                    if crit:
+                        damage = 37.5
+                        damage += (damage * (computer_player.upper_strength / 100))
+                    else:
+                        damage = 25
+                        damage += (damage * (computer_player.upper_strength / 100))
+                elif attack_type == 4:
+                    ## wheel kick
+                    attack_type = 'l'
+                    for i in range(computer_player.crit):
+                        rand_choice = random.randint(1,10)
+                        if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
+                            crit = True
+                            break
+                        else:
+                            crit = False
+                    if crit:
+                        damage = 75
+                        damage += (damage * (computer_player.upper_strength / 100))
+                    else:
+                        damage = 50
+                        damage += (damage * (computer_player.upper_strength / 100))
 
 
 
