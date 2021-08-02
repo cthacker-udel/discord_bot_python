@@ -2303,7 +2303,7 @@ async def _box(ctx):
         
         Defending:
         4) If the attack lands, their defense comes into play, if it is an upper body attack, their defense reduces the damage by (x)% <-- their defense
-        5) If any of their area HP's reach zero, then they are unable to make attacks with that area anymore (may be added : and also suffer critical damage(to their hp) whenever an attack is placed in that area)
+        5) If any of their area HP's reach zero, then they are unable to make attacks with that area anymore (may be added : and also defense does not negatively affect damage(to their hp) whenever an attack is placed in that area)
         
         Attacking:
         6) When an attack is placed, the attacker's damage is increased (x)% <-- their strength
@@ -2411,6 +2411,7 @@ async def _box(ctx):
                         await ctx.send('\n{}} dodged the attack!\n'.format(computer_player.name))
                     else:
                         if computer_player.upper_body_health <= 0:
+                            damage += (damage * (computer_player.upper_defense / 100))
                             computer_player.hp -= damage
                         else:
                             computer_player.upper_body_health -= damage
@@ -2429,6 +2430,7 @@ async def _box(ctx):
                         await ctx.send('\n{} dodged the attack!'.format(computer_player.name))
                     else:
                         if computer_player.lower_body_health <= 0:
+                            damage += (damage * (computer_player.lower_defense / 100))
                             computer_player.hp -= damage
                         else:
                             computer_player.lower_body_health -= damage
