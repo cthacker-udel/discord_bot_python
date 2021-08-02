@@ -2273,9 +2273,10 @@ async def _box(ctx):
     computer_player = ''
     computer_players = ['rocky','ali','mayweather','tyson','default']
     while True:
-        await ctx.send('\nChoose computer player, presets are :\n1)Default\n2)Ali\n3)Mayweather\n4)Tyson\n5)Rocky')
+        await ctx.send('\nChoose computer player, presets are :\nDefault\nAli\nMayweather\nTyson\nRocky')
         answer = await client.wait_for('message',check= lambda message : message.author == ctx.author)
         try:
+            answer = answer.content
             if answer.lower() in computer_players:
                 ## valid choice
                 computer_player = Player('')
@@ -2290,8 +2291,10 @@ async def _box(ctx):
     rand_choice = 0
     crit = False
     attack_type = ''
+    attack_specific = ''
     dodge = False
     attacked = ''
+    multiplier = 0
 
     while True:
 
@@ -2321,7 +2324,13 @@ async def _box(ctx):
                 if attack_type == 'u':
                     ## upper attack
                     damage -= (damage * (player1.upper_defense / 100))
-                    for i in range(player1.agility):
+                    if attack_specific == 'uc':
+                        ## uppercut
+                        multiplier = 10
+                    elif attack_specific == 'jb':
+                        ## jab
+                        multiplier = 2
+                    for i in range(player1.agility+multiplier):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
                             dodge = True
@@ -2340,7 +2349,13 @@ async def _box(ctx):
                 else:
                     ## lower attack
                     damage -= (damage * (player1.lower_defense / 100))
-                    for i in range(player1.agility):
+                    if attack_specific == 'lk':
+                        ## leg kick
+                        multiplier = 2
+                    elif attack_specific == 'wk':
+                        ## wheel kick
+                        multiplier = 10
+                    for i in range(player1.agility+multiplier):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
                             dodge = True
@@ -2356,8 +2371,11 @@ async def _box(ctx):
                         else:
                             player1.lower_body_health -= damage
                             await ctx.send('\n{} takes {} damage to their upper body!'.format(player1.name,damage))
+            if player1.hp <= 0:
+                await ctx.send('\n{} has been KO\'d!'.format(player1.name))
+                break
 
-            await ctx.send('\n{} : choose your move \n1)Uppercut\n2)Jab\n3)Leg Kick\n4)Wheel Kick')
+            await ctx.send('\n{} : choose your move \n1)Uppercut\n2)Jab\n3)Leg Kick\n4)Wheel Kick'.format(player1.name))
             while True:
                 answer = await client.wait_for('message',check=lambda message : message.author == ctx.author)
                 try:
@@ -2367,6 +2385,7 @@ async def _box(ctx):
 
                 if answer == 1:
                     print('uppercut')
+                    attack_specific = 'uc'
                     attack_type = 'u'
                     for i in range(player1.crit):
                         rand_choice = random.randint(1,10)
@@ -2387,6 +2406,7 @@ async def _box(ctx):
                 elif answer == 2:
                     print('jab')
                     attack_type = 'u'
+                    attack_specific = 'jb'
                     for i in range(player1.crit):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
@@ -2403,6 +2423,7 @@ async def _box(ctx):
                 elif answer == 3:
                     print('leg kick')
                     attack_type = 'l'
+                    attack_specific = 'lk'
                     for i in range(player1.crit):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
@@ -2418,6 +2439,7 @@ async def _box(ctx):
                         damage += (damage * (player1.upper_strength / 100))
                 elif answer == 4:
                     print('wheel kick')
+                    attack_specific = 'wk'
                     attack_type = 'l'
                     for i in range(player1.crit):
                         rand_choice = random.randint(1,10)
@@ -2443,7 +2465,13 @@ async def _box(ctx):
                 if attack_type == 'u':
                     ## upper attack
                     damage -= (damage * (computer_player.upper_defense / 100))
-                    for i in range(computer_player.agility):
+                    if attack_specific == 'uc':
+                        ## uppercut
+                        multiplier = 10
+                    elif attack_specific == 'jb':
+                        ## jab
+                        multiplier = 2
+                    for i in range(computer_player.agility+multiplier):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10):
                             ## dodged
@@ -2463,7 +2491,13 @@ async def _box(ctx):
                 else:
                     ## lower attack
                     damage -= (damage * (computer_player.lower_defense / 100))
-                    for i in range(computer_player.agility):
+                    if attack_specific == 'lk':
+                        ## leg kick
+                        multiplier = 2
+                    elif attack_specific == 'wk':
+                        ## wheel kick
+                        multiplier = 10
+                    for i in range(computer_player.agility+multiplier):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10):
                             dodge = True
@@ -2481,10 +2515,14 @@ async def _box(ctx):
                             await ctx.send('\n{} takes {} damage to their lower body!'.format(computer_player.name,damage))
             if computer_player.hp == 0:
                 await ctx.send('\n{} has been KO\'d! {} wins!\n'.format(computer_player.name,player1.name))
+                break
             else:
+                await ctx.send('\n{} attacking!'.format(computer_player.name))
                 if attack_type == 1:
                     ## uppercut
+                    await ctx.send('\n{} attacks with an uppercut!'.format(computer_player.name))
                     attack_type = 'u'
+                    attack_specific = 'uc'
                     for i in range(computer_player.crit):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
@@ -2500,7 +2538,9 @@ async def _box(ctx):
                         damage += (damage * (computer_player.upper_strength / 100))
                 elif attack_type == 2:
                     ## jab
+                    await ctx.send('\n{} attacks with a jab!'.format(computer_player.name))
                     attack_type = 'u'
+                    attack_specific = 'jb'
                     for i in range(computer_player.crit):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
@@ -2516,7 +2556,9 @@ async def _box(ctx):
                         damage += (damage * (computer_player.upper_strength / 100))
                 elif attack_type == 3:
                     ## leg kick
+                    await ctx.send('\n{} attacks with a leg kick!'.format(computer_player.name))
                     attack_type = 'l'
+                    attack_specific = 'lk'
                     for i in range(computer_player.crit):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
@@ -2532,7 +2574,9 @@ async def _box(ctx):
                         damage += (damage * (computer_player.upper_strength / 100))
                 elif attack_type == 4:
                     ## wheel kick
+                    await ctx.send('\n{} attacks with a wheel kick!'.format(computer_player))
                     attack_type = 'l'
+                    attack_specific = 'wk'
                     for i in range(computer_player.crit):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
