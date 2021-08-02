@@ -2319,12 +2319,14 @@ async def _box(ctx):
 
                 if answer == 1:
                     print('uppercut')
-                    for i in range(player1.agility):
+                    for i in range(player1.crit):
                         rand_choice = random.randint(1,10)
-                        if rand_choice == random.randint(1,10):
+                        if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
                             ## crit landed
                             crit = True
                             break
+                        else:
+                            crit = False
                     ## no crit landed
                     if crit:
                         damage = 75
@@ -2332,12 +2334,52 @@ async def _box(ctx):
                     else:
                         damage = 50
                         damage += (damage * (player1.upper_strength / 100))
+
                 elif answer == 2:
                     print('jab')
+                    for i in range(player1.crit):
+                        rand_choice = random.randint(1,10)
+                        if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
+                            crit = True
+                            break
+                        else:
+                            crit = False
+                    if crit:
+                        damage = 37.5
+                        damage += (damage * (player1.upper_strength / 100))
+                    else:
+                        damage = 25
+                        damage += (damage * (player1.upper_strength / 100))
                 elif answer == 3:
                     print('leg kick')
+                    for i in range(player1.crit):
+                        rand_choice = random.randint(1,10)
+                        if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
+                            crit = True
+                            break
+                        else:
+                            crit = False
+                    if crit:
+                        damage = 37.5
+                        damage += (damage * (player1.upper_strength / 100))
+                    else:
+                        damage = 25
+                        damage += (damage * (player1.upper_strength / 100))
                 elif answer == 4:
                     print('wheel kick')
+                    for i in range(player1.crit):
+                        rand_choice = random.randint(1,10)
+                        if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
+                            crit = True
+                            break
+                        else:
+                            crit = False
+                    if crit:
+                        damage = 50
+                        damage += (damage * (player1.upper_strength / 100))
+                    else:
+                        damage = 25
+                        damage += (damage * (player1.upper_strength / 100))
         else:
             ## computer turn
             print('')
