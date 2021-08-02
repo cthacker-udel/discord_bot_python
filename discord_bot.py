@@ -2117,7 +2117,7 @@ class Player:
 
     def __init__(self,name):
         self.name = name
-        self.hp = 100
+        self.hp = 150
         self.upper_body_health = 100
         self.lower_body_health = 100
         self.upper_strength = 1
@@ -2125,10 +2125,11 @@ class Player:
         self.upper_defense = 1
         self.lower_defense = 1
         self.agility = 1
+        self.crit = 1
 
     def set_computer(self,name):
         if name.lower() == 'tyson': # mike tyson
-            self.hp = 150
+            self.hp = 250
             self.upper_body_health = 200
             self.lower_body_health = 100
             self.upper_strength = 10 # max upper body
@@ -2136,8 +2137,9 @@ class Player:
             self.upper_defense = 8 # 8% decrease among hits
             self.lower_defense = 5 # 5% decrease among hits
             self.agility = 5 # 5% chance to dodge attack
+            self.crit = 10
         elif name.lower() == 'ali': #Ali
-            self.hp = 225
+            self.hp = 350
             self.upper_body_health = 325
             self.lower_body_health = 175
             self.upper_strength = 10
@@ -2145,8 +2147,9 @@ class Player:
             self.upper_defense = 11
             self.lower_defense = 11
             self.agility = 11
+            self.crit = 4
         elif name.lower() == 'mayweather':
-            self.hp = 200
+            self.hp = 300
             self.upper_body_health = 200
             self.lower_body_health = 200
             self.upper_strength = 6
@@ -2154,8 +2157,9 @@ class Player:
             self.upper_defense = 10
             self.lower_defense = 10
             self.agility = 10
-        elif name.lower() == 'rocky':
-            self.hp = 300
+            self.crit = 6
+        elif name.lower() == 'rocky': ## strongest preset
+            self.hp = 400
             self.upper_body_health = 300
             self.lower_body_health = 300
             self.upper_strength = 15
@@ -2163,9 +2167,10 @@ class Player:
             self.upper_defense = 15
             self.lower_defense = 4
             self.agility = 3
+            self.crit = 15
         else:
             ## default computer
-            self.hp = 100
+            self.hp = 150
             self.upper_body_health = 100
             self.lower_body_health = 100
             self.upper_strength = 1
@@ -2251,8 +2256,30 @@ async def _box(ctx):
                     break
             except Exception as e:
                 await ctx.send('\nInvalid input\n')
-    else:
-        await ctx.send('\nAnswer was no\n')
+
+    while True:
+
+        """
+        Game Format:
+        
+        1) Flip coin to determine who goes first
+        2) Player will have overall hp, upper body hp, and lower body hp
+        3) Each time a player gets attacked, there is a loop that runs x amount of times(their agility strength) and they have 10 chances to dodge the attack
+        
+        Defending:
+        4) If the attack lands, their defense comes into play, if it is an upper body attack, their defense reduces the damage by (x)% <-- their defense
+        5) If any of their area HP's reach zero, then they are unable to make attacks with that area anymore (may be added : and also suffer critical damage(to their hp) whenever an attack is placed in that area)
+        
+        Attacking:
+        6) When an attack is placed, the attacker's damage is increased (x)% <-- their strength
+        7) Also, they have a (x)% chance to land a crit( loops x times and calculates x chances), a crit does 50% more damage
+        
+        Ending:
+        8)When a player's hp reaches zero, the game ends
+        
+        
+        """
+
 
 
 
