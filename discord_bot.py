@@ -2154,6 +2154,15 @@ class Player:
             self.upper_defense = 10
             self.lower_defense = 10
             self.agility = 10
+        elif name.lower() == 'rocky':
+            self.hp = 300
+            self.upper_body_health = 300
+            self.lower_body_health = 300
+            self.upper_strength = 15
+            self.lower_strength = 5
+            self.upper_defense = 15
+            self.lower_defense = 4
+            self.agility = 3
         else:
             ## default computer
             self.hp = 100
