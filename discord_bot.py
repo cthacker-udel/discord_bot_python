@@ -2129,6 +2129,7 @@ class Player:
 
     def set_computer(self,name):
         if name.lower() == 'tyson': # mike tyson
+            self.name = 'Mike Tyson'
             self.hp = 250
             self.upper_body_health = 200
             self.lower_body_health = 100
@@ -2139,6 +2140,7 @@ class Player:
             self.agility = 5 # 5% chance to dodge attack
             self.crit = 10
         elif name.lower() == 'ali': #Ali
+            self.name = 'Muhammad Ali'
             self.hp = 350
             self.upper_body_health = 325
             self.lower_body_health = 175
@@ -2149,6 +2151,7 @@ class Player:
             self.agility = 11
             self.crit = 4
         elif name.lower() == 'mayweather':
+            self.name = 'Floyd Mayweather'
             self.hp = 300
             self.upper_body_health = 200
             self.lower_body_health = 200
@@ -2159,6 +2162,7 @@ class Player:
             self.agility = 10
             self.crit = 6
         elif name.lower() == 'rocky': ## strongest preset
+            self.name = 'Rocky Balboa'
             self.hp = 400
             self.upper_body_health = 300
             self.lower_body_health = 300
@@ -2170,6 +2174,7 @@ class Player:
             self.crit = 15
         else:
             ## default computer
+            self.name = 'Computer Player'
             self.hp = 150
             self.upper_body_health = 100
             self.lower_body_health = 100
@@ -2284,6 +2289,8 @@ async def _box(ctx):
     damage = 0
     rand_choice = 0
     crit = False
+    attack_type = ''
+    dodge = False
 
     while True:
 
@@ -2319,6 +2326,7 @@ async def _box(ctx):
 
                 if answer == 1:
                     print('uppercut')
+                    attack_type = 'u'
                     for i in range(player1.crit):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
@@ -2337,6 +2345,7 @@ async def _box(ctx):
 
                 elif answer == 2:
                     print('jab')
+                    attack_type = 'u'
                     for i in range(player1.crit):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
@@ -2352,6 +2361,7 @@ async def _box(ctx):
                         damage += (damage * (player1.upper_strength / 100))
                 elif answer == 3:
                     print('leg kick')
+                    attack_type = 'l'
                     for i in range(player1.crit):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
@@ -2367,6 +2377,7 @@ async def _box(ctx):
                         damage += (damage * (player1.upper_strength / 100))
                 elif answer == 4:
                     print('wheel kick')
+                    attack_type = 'l'
                     for i in range(player1.crit):
                         rand_choice = random.randint(1,10)
                         if rand_choice == random.randint(1,10) or rand_choice == random.randint(1,10):
@@ -2382,7 +2393,39 @@ async def _box(ctx):
                         damage += (damage * (player1.upper_strength / 100))
         else:
             ## computer turn
-            print('')
+            attack_type = random.randint(1,4)
+            if turn == 'u':
+                ## user attacked
+                if attack_type == 'u':
+                    ## upper attack
+                    damage -= (damage * (computer_player.upper_defense / 100))
+                    for i in range(computer_player.agility):
+                        rand_choice = random.randint(1,10)
+                        if rand_choice == random.randint(1,10):
+                            ## dodged
+                            dodge = True
+                            break
+                        else:
+                            dodge = False
+                    if dodge:
+                        await ctx.send('\n{}} dodged the attack!\n'.format(computer_player.name))
+                    else:
+                        await ctx.send('\n{}} takes {} damage to their upper body!'.format(computer_player.name,damage))
+                else:
+                    ## lower attack
+                    damage -= (damage * (computer_player.lower_defense / 100))
+                    for i in range(computer_player.agility):
+                        rand_choice = random.randint(1,10)
+                        if rand_choice == random.randint(1,10):
+                            dodge = True
+                            break
+                        else:
+                            dodge = False
+                    if dodge:
+                        await ctx.send('\n{} dodged the attack!'.format(computer_player.name))
+                    else:
+                        await ctx.send('\n{} takes {} damage to their lower body!'.format(computer_player.name))
+
 
 
 
