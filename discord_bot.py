@@ -2257,6 +2257,13 @@ async def _box(ctx):
             except Exception as e:
                 await ctx.send('\nInvalid input\n')
 
+    rand_choice = random.randint(1,2)
+
+    if rand_choice == 1:
+        turn = 'u'
+    else:
+        turn = 'c'
+
     while True:
 
         """
@@ -2276,7 +2283,6 @@ async def _box(ctx):
         
         Ending:
         8)When a player's hp reaches zero, the game ends
-        
         
         """
 
