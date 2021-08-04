@@ -3775,11 +3775,14 @@ async def blackjackv_two(ctx):
                             answer = answer.content
                             if answer.lower() == '1':
                                 # change ace to 1
+                                print('')
                             elif answer.lower() == '11':
                                 # change ace to 11
+                                print('')
                 # player chose hit
             elif answer.lower() == 'stand':
                 # player chose stand
+                print('')
             else:
                 await ctx.send('\nInvalid input\n')
 
