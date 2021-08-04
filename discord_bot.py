@@ -3732,6 +3732,62 @@ async def maze_game(ctx):
         except Exception as e:
             await ctx.send('\nEnter valid input\n')
 
+@client.command(aliases=['blackjackv2'])
+async def blackjackv_two(ctx):
+    await ctx.send('\nWelcome to blackjack v2! Rules are : \n1)Both players get dealt two cards\n2)Both players choose whether to stay or hit\n3)If both players stay, then the showdown commences\n4)Both players show their hands, and whoever is closer to 21 wins! If both players are tied, then it is a draw!\n5)At the end of the game(whenever the player chooses to end the program), the scores are tallied, and the player with the higher amount of wins, wins!\n6)A win is deducted for every loss as well')
+    player_hand = []
+    player_total = 0
+    computer_hand = []
+    computer_total = 0
+    while True:
+        # generate deck
+        deck = generate_deck()
+        await ctx.send('\nThe deck has been generated!\nShuffling seven times then dealing two cards to both players')
+        # player input
+        for i in range(7):
+            deck = shuffle(deck)
+        # dealing to player's hand
+        card,deck = deal(deck)
+        player_hand.append(card)
+        card,deck = deal(deck)
+        player_hand.append(card)
+
+        # dealing to computer's hand
+
+        card,deck = deal(deck)
+        computer_hand.append(card)
+        card,deck = deal(deck)
+        computer_hand.append(card)
+
+        while True:
+            await ctx.send('\nPlayer goes first!\nWhat is your choice? (hit/stand)')
+            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+            answer = answer.content
+            if type(answer) != str:
+                await ctx.send('\nInvalid input\n')
+                continue
+            elif answer.lower() == 'hit':
+                for i in range(len(player_hand)):
+                    if 'Ace' in player_hand[i]:
+                        while True:
+                            await ctx.send('\nDo you want to transform the Ace into a 1 or 11(y/n)')
+                            answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                            answer = answer.content
+                            if answer.lower() == '1':
+                                # change ace to 1
+                            elif answer.lower() == '11':
+                                # change ace to 11
+                # player chose hit
+            elif answer.lower() == 'stand':
+                # player chose stand
+            else:
+                await ctx.send('\nInvalid input\n')
+
+
+
+
+
+        # computer input
 
 
 
