@@ -3732,15 +3732,86 @@ async def maze_game(ctx):
         except Exception as e:
             await ctx.send('\nEnter valid input\n')
 
+
+async def hand_sum_blackjackv2(ctx,hand):
+    total = 0
+    for eachcard in hand:
+        if 'Ace' in eachcard:
+            while True:
+                await ctx.send('\nTurn the ace into an 11 or 1?')
+                answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                if answer.content == '11':
+                    ## 11
+                    total += 11
+                    break
+                elif answer.content == '1':
+                    ## 1
+                    total += 1
+                    break
+                else:
+                    ## invalid input
+                    await ctx.send('\nInvalid input\n')
+        elif 'Queen' in eachcard:
+            total += 10
+        elif 'King' in eachcard:
+            total += 10
+        elif 'Jack' in eachcard:
+            total += 10
+        else:
+            total += int(eachcard.split(' ')[0])
+    return total
+
+def hand_sum_computer_blackjackv2(hand):
+    total = 0
+    for eachcard in hand:
+        if 'Ace' in eachcard:
+            if total + 11 > 21:
+                total += 1
+            else:
+                total += 11
+        elif 'Queen' in eachcard:
+            total += 10
+        elif 'King' in eachcard:
+            total += 10
+        elif 'Jack' in eachcard:
+            total += 10
+        else:
+            total += int(eachcard.split(' ')[0])
+    return total
+
 @client.command(aliases=['blackjackv2'])
 async def blackjackv_two(ctx):
     await ctx.send('\nWelcome to blackjack v2! Rules are : \n1)Both players get dealt two cards\n2)Both players choose whether to stay or hit\n3)If both players stay, then the showdown commences\n4)Both players show their hands, and whoever is closer to 21 wins! If both players are tied, then it is a draw!\n5)At the end of the game(whenever the player chooses to end the program), the scores are tallied, and the player with the higher amount of wins, wins!\n6)A win is deducted for every loss as well')
-    player_hand = []
-    player_total = 0
-    computer_hand = []
-    computer_total = 0
-    stands = False
+    player_wins = 0
+    computer_wins = 0
+    first_game = False
+    end_game = False
     while True:
+        if first_game:
+            ## first game has been played
+            await ctx.send('\nTotal wins : COMPUTER {} | PLAYER {}'.format(computer_wins,player_wins))
+            while True:
+                await ctx.send('\nKeep playing? Y|N?')
+                answer = await client.wait_for('message',check= lambda message: message.author == ctx.author)
+                if answer.content.lower() == 'yes' or answer.content.lower() == 'y':
+                    ## yes
+                    break
+                elif answer.content.length() == 'no' or answer.content.lower() == 'n':
+                    ## no
+                    end_game = True
+                else:
+                    ## default to yes
+                    break
+        if end_game:
+            break
+
+        player_hand = []
+        player_total = 0
+        computer_hand = []
+        computer_total = 0
+        stands = False
+
+
         # generate deck
         deck = generate_deck()
         await ctx.send('\nThe deck has been generated!\nShuffling seven times then dealing two cards to both players')
@@ -3759,17 +3830,24 @@ async def blackjackv_two(ctx):
         computer_hand.append(card)
         card,deck = deal(deck)
         computer_hand.append(card)
+        await ctx.send('\nDealt hand is : {}'.format(player_hand))
+        player_total = await hand_sum_blackjackv2(ctx,player_hand)
+        computer_total = hand_sum_computer_blackjackv2(computer_hand)
 
         while True:
-            await ctx.send('\nPlayer goes first!\nWhat is your choice? (hit/stand)')
+            if not first_game:
+                first_game = True
+            await ctx.send('\nPlayer goes first!\nWhat is your choice? (hit/stand)[Total : {}]'.format(player_total))
             answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
             answer = answer.content
             if type(answer) != str:
                 await ctx.send('\nInvalid input\n')
                 continue
             elif answer.lower() == 'hit':
+                player_total = 0
                 ## have to deal to player's hand
                 card,deck = deal(deck)
+                await ctx.send('\nYou have been dealt a {}'.format(card))
                 player_hand.append(card)
                 for i in range(len(player_hand)):
                     if 'Ace' in player_hand[i]:
@@ -3782,10 +3860,14 @@ async def blackjackv_two(ctx):
                                 print('')
                                 player_total += 1
                                 await ctx.send('\nYou have changed the Ace to an 1!')
+                                break
                             elif answer.lower() == '11':
                                 # change ace to 11
                                 player_total += 11
                                 await ctx.send('\nYou have changed the Ace to an 11!\n')
+                                break
+                            else:
+                                await ctx.send('\nInvalid input\n')
                     else:
                         if 'King' in player_hand[i]:
                             player_total += 10
@@ -3798,7 +3880,8 @@ async def blackjackv_two(ctx):
                 if player_total > 21:
                     ## player loses
                     await ctx.send('\nPlayer\'s hand goes over 21! Player loses!')
-                    return None
+                    computer_wins += 1
+                    break
                 else:
                     await ctx.send('\nPlayer\'s total is : {}'.format(player_total))
                 # player chose hit
@@ -3810,144 +3893,170 @@ async def blackjackv_two(ctx):
                     if player_total > computer_total:
                         ## player wins
                         await ctx.send('\n{} wins!'.format(ctx.message.author.mention))
+                        player_wins += 1
+                        break
                     else:
                         ## computer wins
                         await ctx.send('\n{} wins!'.format(client.user.display_name))
+                        computer_wins += 1
+                        break
                 else:
                     stands = True
-                break
+                #break
             else:
                 await ctx.send('\nInvalid input\n')
 
-        await ctx.send('\nComputer choosing their move!')
+            await ctx.send('\nComputer choosing their move!')
 
-        ## generate probability of 21 in player's hand
-        user_probability = 0
-        for eachcard in deck:
-            if 'Queen' in eachcard:
-                if 10 + player_total == 21:
-                    user_probability += 1
-            elif 'King' in eachcard:
-                if 10 + player_total == 21:
-                    user_probability += 1
-            elif 'Jack' in eachcard:
-                if 10 + player_total == 21:
-                    user_probability += 1
-            elif 'Ace' in eachcard:
-                if 10 + player_total == 21 or 1 + player_total == 21:
-                    user_probability += 1
-            else:
-                if int(eachcard.split(' ')[0]) + player_total == 21:
-                    user_probability += 1
-        user_probability = (user_probability / len(deck)) * 100
+            ## generate probability of 21 in player's hand
 
+            if stands and computer_total > player_total:
+                await ctx.send('\n{} stands! {} wins!'.format(client.user.display_name,client.user.display_name))
+                computer_wins += 1
+                break
 
-        if user_probability > 25:
-            ## generate random number to decide whether to stand or call
-            print('')
-            rand_number = random.randint(1,102313012)
-            if rand_number % 2 == 0:
-                ## even - stand
-                await ctx.send('{} stands'.format(client.user.display_name))
-                if stands:
-                    ## showdown
-                    result = computer_total > player_total
-                    if result:
-                        ## computer wins
-                        await ctx.send('\n{} wins!'.format(client.user.display_name))
-                    else:
-                        ## player wins
-                        await ctx.send('\n{} wins!'.format(ctx.message.author.mention))
-                else:
-                    stands = True
-            else:
-                ## odd - call
-                await ctx.send('{} calls'.format(client.user.display_name))
-                card,deck = deal(deck)
-                computer_hand.append(card)
-                ## generate cpu sum
-                for i in range(len(computer_hand)):
-                    if 'Ace' in computer_hand[i]:
-                        if computer_total + 11 > 21:
-                            ## make it deal a 1
-                            computer_total += 1
-                        else:
-                            computer_total += 11
-                    elif 'Queen' in computer_hand[i]:
-                        computer_total += 10
-                    elif 'King' in computer_hand[i]:
-                        computer_total += 10
-                    elif 'Jack' in computer_hand[i]:
-                        computer_total += 10
-                    else:
-                        computer_total += int(computer_hand[i].split(' ')[0])
-                if computer_total > 21:
-                    ## computer busts, game ends
-                    await ctx.send('{}\'s total goes over 21, {} wins!'.format(client.user.display_name,ctx.message.author.mention))
-                    return None
-                stands = False
-        else:
-            ## generate cpu_probability to decide whether to stand or call
-
+            user_probability = 0
             for eachcard in deck:
-                if 'Ace' in eachcard:
-                    if 1 + computer_total == 21:
-                        cpu_probability += 1
-                    elif 11 + computer_total == 21:
-                        cpu_probability += 1
-                elif 'Queen' in eachcard:
-                    if 10 + computer_total == 21:
-                        cpu_probability += 1
+                if 'Queen' in eachcard:
+                    if 10 + player_total == 21:
+                        user_probability += 1
                 elif 'King' in eachcard:
-                    if 10 + computer_total == 21:
-                        cpu_probability += 1
+                    if 10 + player_total == 21:
+                        user_probability += 1
                 elif 'Jack' in eachcard:
-                    if 10 + computer_total == 21:
-                        cpu_probability += 1
+                    if 10 + player_total == 21:
+                        user_probability += 1
+                elif 'Ace' in eachcard:
+                    if 10 + player_total == 21 or 1 + player_total == 21:
+                        user_probability += 1
                 else:
-                    if int(eachcard.split(' ')[0]) == 21:
-                        cpu_probability += 1
-            cpu_probability = (cpu_probability / len(deck)) * 100
-            if cpu_probability > 15:
-                ## call
-                await ctx.send('\n{} calls'.format(client.user.display_name))
-                card,deck = deal(deck)
-                ## generate cpu sum
+                    if int(eachcard.split(' ')[0]) + player_total == 21:
+                        user_probability += 1
+            user_probability = (user_probability / len(deck)) * 100
+            cpu_probability = 0
 
-                for i in range(len(computer_hand)):
-                    if 'Ace' in computer_hand[i]:
-                        if computer_total + 11 > 21:
-                            ## make it deal a 1
-                            computer_total += 1
+            print('user probability = {}'.format(user_probability))
+            if user_probability > 25:
+                ## generate random number to decide whether to stand or call
+                print('')
+                rand_number = random.randint(1,102313012)
+                if _is_prime(rand_number):
+                    ## even - stand
+                    await ctx.send('{} stands'.format(client.user.display_name))
+                    if stands:
+                        ## showdown
+                        result = computer_total > player_total
+                        if result:
+                            ## computer wins
+                            await ctx.send('\n{} wins!'.format(client.user.display_name))
+                            computer_wins += 1
+                            break
                         else:
-                            computer_total += 11
-                    elif 'Queen' in computer_hand[i]:
-                        computer_total += 10
-                    elif 'King' in computer_hand[i]:
-                        computer_total += 10
-                    elif 'Jack' in computer_hand[i]:
-                        computer_total += 10
+                            ## player wins
+                            await ctx.send('\n{} wins!'.format(ctx.message.author.mention))
+                            player_wins += 1
+                            break
                     else:
-                        computer_total += int(computer_hand[i].split(' ')[0])
-                if computer_total > 21:
-                    ## computer busts, game ends
-                    await ctx.send('{}\'s total goes over 21, {} wins!'.format(client.user.display_name,ctx.message.author.mention))
-                    return None
-                stands = False
-            else:
-                ## stand
-                await ctx.send('\n{} stands'.format(client.user.display_name))
-                if stands:
-                    ## showdown
-                    if computer_total > player_total:
-                        ## computer wins
-                        await ctx.send('\n{} wins!'.format(client.user.display_name))
-                    else:
-                        ## player wins
-                        await ctx.send('\n{} wins!'.format(ctx.message.author.mention))
+                        stands = True
                 else:
-                    stands = True
-                continue
+                    ## odd - call
+                    computer_total = 0
+                    await ctx.send('{} calls1'.format(client.user.display_name))
+                    card,deck = deal(deck)
+                    computer_hand.append(card)
+                    ## generate cpu sum
+                    for i in range(len(computer_hand)):
+                        if 'Ace' in computer_hand[i]:
+                            if computer_total + 11 > 21:
+                                ## make it deal a 1
+                                computer_total += 1
+                            else:
+                                computer_total += 11
+                        elif 'Queen' in computer_hand[i]:
+                            computer_total += 10
+                        elif 'King' in computer_hand[i]:
+                            computer_total += 10
+                        elif 'Jack' in computer_hand[i]:
+                            computer_total += 10
+                        else:
+                            computer_total += int(computer_hand[i].split(' ')[0])
+                    if computer_total > 21:
+                        ## computer busts, game ends
+                        await ctx.send('{}\'s total goes over 21, {} wins!'.format(client.user.display_name,ctx.message.author.mention))
+                        player_wins += 1
+                        break
+                    stands = False
+            else:
+                ## generate cpu_probability to decide whether to stand or call
+
+                for eachcard in deck:
+                    if 'Ace' in eachcard:
+                        if 1 + computer_total == 21:
+                            cpu_probability += 1
+                        elif 11 + computer_total == 21:
+                            cpu_probability += 1
+                    elif 'Queen' in eachcard:
+                        if 10 + computer_total == 21:
+                            cpu_probability += 1
+                    elif 'King' in eachcard:
+                        if 10 + computer_total == 21:
+                            cpu_probability += 1
+                    elif 'Jack' in eachcard:
+                        if 10 + computer_total == 21:
+                            cpu_probability += 1
+                    else:
+                        if int(eachcard.split(' ')[0]) + computer_total == 21:
+                            cpu_probability += 1
+                cpu_probability = (cpu_probability / len(deck)) * 100
+                print('cpu probability = {}'.format(cpu_probability))
+                if cpu_probability > 15 or (stands and computer_total < player_total):
+                    ## call
+                    await ctx.send('\n{} calls2'.format(client.user.display_name))
+                    card,deck = deal(deck)
+                    computer_hand.append(card)
+                    ## generate cpu sum
+                    computer_total = 0
+
+                    for i in range(len(computer_hand)):
+                        if 'Ace' in computer_hand[i]:
+                            if computer_total + 11 > 21:
+                                ## make it deal a 1
+                                computer_total += 1
+                            else:
+                                computer_total += 11
+                        elif 'Queen' in computer_hand[i]:
+                            computer_total += 10
+                        elif 'King' in computer_hand[i]:
+                            computer_total += 10
+                        elif 'Jack' in computer_hand[i]:
+                            computer_total += 10
+                        else:
+                            computer_total += int(computer_hand[i].split(' ')[0])
+                    if computer_total > 21:
+                        ## computer busts, game ends
+                        await ctx.send('{}\'s total goes over 21, {} wins!'.format(client.user.display_name,ctx.message.author.mention))
+                        player_wins += 1
+                        break
+                    stands = False
+                else:
+                    ## stand
+                    await ctx.send('\n{} stands'.format(client.user.display_name))
+                    if stands:
+                        ## showdown
+                        if computer_total > player_total:
+                         ## computer wins
+                            await ctx.send('\n{} wins!'.format(client.user.display_name))
+                            computer_wins += 1
+                            break
+                        else:
+                            ## player wins
+                            await ctx.send('\n{} wins!'.format(ctx.message.author.mention))
+                            player_wins += 1
+                            break
+                    else:
+                        stands = True
+                    continue
+            print('Computer total = {}'.format(computer_total))
 
 
 
