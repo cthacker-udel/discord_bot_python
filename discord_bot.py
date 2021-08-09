@@ -3767,6 +3767,9 @@ async def blackjackv_two(ctx):
                 await ctx.send('\nInvalid input\n')
                 continue
             elif answer.lower() == 'hit':
+                ## have to deal to player's hand
+                card,deck = deal(deck)
+                player_hand.append(card)
                 for i in range(len(player_hand)):
                     if 'Ace' in player_hand[i]:
                         while True:
@@ -3776,15 +3779,118 @@ async def blackjackv_two(ctx):
                             if answer.lower() == '1':
                                 # change ace to 1
                                 print('')
+                                player_total += 1
+                                await ctx.send('\nYou have changed the Ace to an 1!')
                             elif answer.lower() == '11':
                                 # change ace to 11
-                                print('')
+                                player_total += 11
+                                await ctx.send('\nYou have changed the Ace to an 11!\n')
+                    else:
+                        if 'King' in player_hand[i]:
+                            player_total += 10
+                        elif 'Queen' in player_hand[i]
+                            player_total += 10
+                        elif 'Jack' in player_hand[i]
+                            player_total += 10
+                        else:
+                            player_total += int(player_hand[i].split(' ')[0])
+                if player_total > 21:
+                    ## player loses
+                    await ctx.send('\nPlayer\'s hand goes over 21! Player loses!')
+                    return None
+                else:
+                    await ctx.send('\nPlayer\'s total is : {}'.format(player_total))
                 # player chose hit
             elif answer.lower() == 'stand':
                 # player chose stand
-                print('')
+                await ctx.send('\nPlayer stands!\n')
+                break
             else:
                 await ctx.send('\nInvalid input\n')
+
+        await ctx.send('\nComputer choosing their move!')
+
+        ## generate probability of 21 in player's hand
+        user_probability = 0
+        for eachcard in deck:
+            if 'Queen' in eachcard:
+                if 10 + player_total == 21:
+                    user_probability += 1
+            elif 'King' in eachcard:
+                if 10 + player_total == 21:
+                    user_probability += 1
+            elif 'Jack' in eachcard:
+                if 10 + player_total == 21:
+                    user_probability += 1
+            elif 'Ace' in eachcard:
+                if 10 + player_total == 21 or 1 + player_total == 21:
+                    user_probability += 1
+            else:
+                if int(eachcard.split(' ')[0]) + player_total == 21:
+                    user_probability += 1
+        cpu_probability = (user_probability / len(deck)) * 100
+
+        ## generate cpu sum
+
+        for i in range(len(computer_hand)):
+            if 'Ace' in computer_hand[i]:
+                if computer_total + 11 > 21:
+                    ## make it deal a 1
+                    computer_total += 1
+                else:
+                    computer_total += 11
+            elif 'Queen' in computer_hand[i]:
+                computer_total += 10
+            elif 'King' in computer_hand[i]:
+                computer_total += 10
+            elif 'Jack' in computer_hand[i]:
+                computer_total += 10
+            else:
+                computer_total += int(computer_hand[i].split(' ')[0])
+
+
+        if user_probability > 25:
+            ## generate random number to decide whether to stand or call
+            print('')
+            rand_number = random.randint(1,102313012)
+            if rand_number % 2 == 0:
+                ## even - stand
+                continue
+            else:
+                ## odd - call
+                continue
+        else:
+            ## generate cpu_probability to decide whether to stand or call
+
+            for eachcard in deck:
+                if 'Ace' in eachcard:
+                    if 1 + computer_total == 21:
+                        cpu_probability += 1
+                    elif 11 + computer_total == 21:
+                        cpu_probability += 1
+                elif 'Queen' in eachcard:
+                    if 10 + computer_total == 21:
+                        cpu_probability += 1
+                elif 'King' in eachcard:
+                    if 10 + computer_total == 21:
+                        cpu_probability += 1
+                elif 'Jack' in eachcard:
+                    if 10 + computer_total == 21:
+                        cpu_probability += 1
+                else:
+                    if int(eachcard.split(' ')[0]) == 21:
+                        cpu_probability += 1
+            cpu_probability = (cpu_probability / len(deck)) * 100
+            if cpu_probability > 15:
+                ## call
+                continue
+            else:
+                ## stand
+                continue
+
+            continue
+
+
 
 
 
