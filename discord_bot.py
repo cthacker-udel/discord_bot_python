@@ -3828,7 +3828,7 @@ async def blackjackv_two(ctx):
             else:
                 if int(eachcard.split(' ')[0]) + player_total == 21:
                     user_probability += 1
-        cpu_probability = (user_probability / len(deck)) * 100
+        user_probability = (user_probability / len(deck)) * 100
 
         ## generate cpu sum
 
@@ -3855,9 +3855,13 @@ async def blackjackv_two(ctx):
             rand_number = random.randint(1,102313012)
             if rand_number % 2 == 0:
                 ## even - stand
+                await ctx.send('{} stands'.format(client.user.display_name))
                 continue
             else:
                 ## odd - call
+                await ctx.send('{} calls'.format(client.user.display_name))
+                card,deck = deal(deck)
+                computer_hand.append(card)
                 continue
         else:
             ## generate cpu_probability to decide whether to stand or call
