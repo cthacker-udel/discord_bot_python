@@ -3789,9 +3789,9 @@ async def blackjackv_two(ctx):
                     else:
                         if 'King' in player_hand[i]:
                             player_total += 10
-                        elif 'Queen' in player_hand[i]
+                        elif 'Queen' in player_hand[i]:
                             player_total += 10
-                        elif 'Jack' in player_hand[i]
+                        elif 'Jack' in player_hand[i]:
                             player_total += 10
                         else:
                             player_total += int(player_hand[i].split(' ')[0])
