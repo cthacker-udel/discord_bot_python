@@ -3739,6 +3739,7 @@ async def blackjackv_two(ctx):
     player_total = 0
     computer_hand = []
     computer_total = 0
+    stands = False
     while True:
         # generate deck
         deck = generate_deck()
@@ -3804,6 +3805,10 @@ async def blackjackv_two(ctx):
             elif answer.lower() == 'stand':
                 # player chose stand
                 await ctx.send('\nPlayer stands!\n')
+                if stands:
+                    ## showdown
+                else:
+                    stands = True
                 break
             else:
                 await ctx.send('\nInvalid input\n')
@@ -3830,24 +3835,6 @@ async def blackjackv_two(ctx):
                     user_probability += 1
         user_probability = (user_probability / len(deck)) * 100
 
-        ## generate cpu sum
-
-        for i in range(len(computer_hand)):
-            if 'Ace' in computer_hand[i]:
-                if computer_total + 11 > 21:
-                    ## make it deal a 1
-                    computer_total += 1
-                else:
-                    computer_total += 11
-            elif 'Queen' in computer_hand[i]:
-                computer_total += 10
-            elif 'King' in computer_hand[i]:
-                computer_total += 10
-            elif 'Jack' in computer_hand[i]:
-                computer_total += 10
-            else:
-                computer_total += int(computer_hand[i].split(' ')[0])
-
 
         if user_probability > 25:
             ## generate random number to decide whether to stand or call
@@ -3856,13 +3843,36 @@ async def blackjackv_two(ctx):
             if rand_number % 2 == 0:
                 ## even - stand
                 await ctx.send('{} stands'.format(client.user.display_name))
-                continue
+                if stands:
+                    ## showdown
+                else:
+                    stands = True
             else:
                 ## odd - call
                 await ctx.send('{} calls'.format(client.user.display_name))
                 card,deck = deal(deck)
                 computer_hand.append(card)
-                continue
+                ## generate cpu sum
+                for i in range(len(computer_hand)):
+                    if 'Ace' in computer_hand[i]:
+                        if computer_total + 11 > 21:
+                            ## make it deal a 1
+                            computer_total += 1
+                        else:
+                            computer_total += 11
+                    elif 'Queen' in computer_hand[i]:
+                        computer_total += 10
+                    elif 'King' in computer_hand[i]:
+                        computer_total += 10
+                    elif 'Jack' in computer_hand[i]:
+                        computer_total += 10
+                    else:
+                        computer_total += int(computer_hand[i].split(' ')[0])
+                if computer_total > 21:
+                    ## computer busts, game ends
+                    await ctx.send('{}\'s total goes over 21, {} wins!'.format(client.user.display_name,ctx.message.author.mention))
+                    return None
+                stands = False
         else:
             ## generate cpu_probability to decide whether to stand or call
 
@@ -3887,12 +3897,38 @@ async def blackjackv_two(ctx):
             cpu_probability = (cpu_probability / len(deck)) * 100
             if cpu_probability > 15:
                 ## call
-                continue
+                await ctx.send('\n{} calls'.format(client.user.display_name))
+                card,deck = deal(deck)
+                ## generate cpu sum
+
+                for i in range(len(computer_hand)):
+                    if 'Ace' in computer_hand[i]:
+                        if computer_total + 11 > 21:
+                            ## make it deal a 1
+                            computer_total += 1
+                        else:
+                            computer_total += 11
+                    elif 'Queen' in computer_hand[i]:
+                        computer_total += 10
+                    elif 'King' in computer_hand[i]:
+                        computer_total += 10
+                    elif 'Jack' in computer_hand[i]:
+                        computer_total += 10
+                    else:
+                        computer_total += int(computer_hand[i].split(' ')[0])
+                if computer_total > 21:
+                    ## computer busts, game ends
+                    await ctx.send('{}\'s total goes over 21, {} wins!'.format(client.user.display_name,ctx.message.author.mention))
+                    return None
+                stands = False
             else:
                 ## stand
+                await ctx.send('\n{} stands'.format(client.user.display_name))
+                if stands:
+                    ## showdown
+                else:
+                    stands = True
                 continue
-
-            continue
 
 
 
