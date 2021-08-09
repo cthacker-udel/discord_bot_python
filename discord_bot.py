@@ -321,7 +321,8 @@ async def _punch_(ctx):
 async def _show_farm(ctx):
     await ctx.send(file=discord.File("C:\\Users\\flyin\\Desktop\\farm.PNG"))
 
-
+"""
+#Deprecated
 @client.command(aliases=['blackjack'])
 async def _black_jack(ctx):
     cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A']
@@ -441,6 +442,7 @@ async def _black_jack(ctx):
                     continue
         else:
             continue
+"""
 
 
 def draw_card(card_list):
@@ -3779,9 +3781,9 @@ def hand_sum_computer_blackjackv2(hand):
             total += int(eachcard.split(' ')[0])
     return total
 
-@client.command(aliases=['blackjackv2'])
+@client.command(aliases=['blackjack'])
 async def blackjackv_two(ctx):
-    await ctx.send('\nWelcome to blackjack v2! Rules are : \n1)Both players get dealt two cards\n2)Both players choose whether to stay or hit\n3)If both players stay, then the showdown commences\n4)Both players show their hands, and whoever is closer to 21 wins! If both players are tied, then it is a draw!\n5)At the end of the game(whenever the player chooses to end the program), the scores are tallied, and the player with the higher amount of wins, wins!\n6)A win is deducted for every loss as well')
+    await ctx.send('\nWelcome to blackjack! Rules are : \n1)Both players get dealt two cards\n2)Both players choose whether to stay or hit\n3)If both players stay, then the showdown commences\n4)Both players show their hands, and whoever is closer to 21 wins! If both players are tied, then it is a draw!\n5)At the end of the game(whenever the player chooses to end the program), the scores are tallied, and the player with the higher amount of wins, wins!\n6)A win is deducted for every loss as well')
     player_wins = 0
     computer_wins = 0
     first_game = False
