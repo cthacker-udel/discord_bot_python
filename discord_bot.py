@@ -3807,6 +3807,12 @@ async def blackjackv_two(ctx):
                 await ctx.send('\nPlayer stands!\n')
                 if stands:
                     ## showdown
+                    if player_total > computer_total:
+                        ## player wins
+                        await ctx.send('\n{} wins!'.format(ctx.message.author.mention))
+                    else:
+                        ## computer wins
+                        await ctx.send('\n{} wins!'.format(client.user.display_name))
                 else:
                     stands = True
                 break
@@ -3845,6 +3851,13 @@ async def blackjackv_two(ctx):
                 await ctx.send('{} stands'.format(client.user.display_name))
                 if stands:
                     ## showdown
+                    result = computer_total > player_total
+                    if result:
+                        ## computer wins
+                        await ctx.send('\n{} wins!'.format(client.user.display_name))
+                    else:
+                        ## player wins
+                        await ctx.send('\n{} wins!'.format(ctx.message.author.mention))
                 else:
                     stands = True
             else:
@@ -3926,6 +3939,12 @@ async def blackjackv_two(ctx):
                 await ctx.send('\n{} stands'.format(client.user.display_name))
                 if stands:
                     ## showdown
+                    if computer_total > player_total:
+                        ## computer wins
+                        await ctx.send('\n{} wins!'.format(client.user.display_name))
+                    else:
+                        ## player wins
+                        await ctx.send('\n{} wins!'.format(ctx.message.author.mention))
                 else:
                     stands = True
                 continue
