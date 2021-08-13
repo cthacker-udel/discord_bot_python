@@ -25,6 +25,8 @@ from webdriver_manager.microsoft import EdgeChromiumDriverManager as EdgeDriverM
 from webdriver_manager.opera import OperaDriverManager
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager as FirefoxDriverManager
+import pymongo
+from tokenstorage import get_conn_string
 
 
 dictionary = PyDictionary()
@@ -2688,10 +2690,12 @@ async def maze_game(ctx):
     tot_size = board_size*board_size
 
     while True:
-        await ctx.send('\n{} enter the board size(only one dimension size needed, will generate NxN board)'.format(ctx.message.author.mention))
+        await ctx.send('\n{} enter the board size(only one dimension size needed[minimum size is 10], will generate NxN board)'.format(ctx.message.author.mention))
         answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
         try:
             answer = int(answer.content)
+            if answer < 10:
+                answer = 10
             board_size = answer
             break
         except Exception as e:
@@ -3798,7 +3802,7 @@ async def blackjackv_two(ctx):
                 if answer.content.lower() == 'yes' or answer.content.lower() == 'y':
                     ## yes
                     break
-                elif answer.content.length() == 'no' or answer.content.lower() == 'n':
+                elif len(answer.content) == 'no' or answer.content.lower() == 'n':
                     ## no
                     end_game = True
                 else:
@@ -3963,7 +3967,7 @@ async def blackjackv_two(ctx):
                 else:
                     ## odd - call
                     computer_total = 0
-                    await ctx.send('{} calls1'.format(client.user.display_name))
+                    await ctx.send('{} calls'.format(client.user.display_name))
                     card,deck = deal(deck)
                     computer_hand.append(card)
                     ## generate cpu sum
@@ -4013,7 +4017,7 @@ async def blackjackv_two(ctx):
                 print('cpu probability = {}'.format(cpu_probability))
                 if cpu_probability > 15 or (stands and computer_total < player_total):
                     ## call
-                    await ctx.send('\n{} calls2'.format(client.user.display_name))
+                    await ctx.send('\n{} calls'.format(client.user.display_name))
                     card,deck = deal(deck)
                     computer_hand.append(card)
                     ## generate cpu sum
@@ -4067,6 +4071,89 @@ async def blackjackv_two(ctx):
 
 
         # computer input
+
+
+@client.command(aliases=['database'])
+async def database_access(ctx):
+
+    client1 = pymongo.MongoClient(get_conn_string())
+
+    await ctx.send('Enter the name of the database to access')
+
+    while True:
+        answer = await client.wait_for('message',check= lambda message: message.author == ctx.author)
+        break
+
+    try:
+        db = client1['{}'.format(answer.content)]
+        list_coll = db.list_collection_names()
+        await ctx.send('List of collection names is : {}'.format(' '.join(list_coll)))
+    except Exception as e:
+        print('Exception handled')
+
+
+@client.command(aliases=['guessword'])
+async def guess_word(ctx):
+
+
+
+    the_soup = bs4.BeautifulSoup(requests.get('https://randomword.com/').content,'html.parser')
+
+    divs = the_soup.find_all('div')
+
+    words = []
+
+    for eachdiv in divs:
+        try:
+            if eachdiv['id'] == 'random_word':
+                words.append(eachdiv.string)
+        except Exception as e:
+            continue
+
+    the_guess_word = words[0]
+
+    pprint(the_guess_word)
+    empty_word = ['<>'] * len(the_guess_word)
+    pprint(empty_word)
+
+    await ctx.send('Random word has been generated! Time to guess the word, each <> representes an letter')
+
+    guesses = 0
+
+    while True:
+
+        await ctx.send('Guesses : {}'.format(guesses))
+        await ctx.send(' '.join(empty_word))
+        if empty_word.count('<>') == 0:
+            ## player has won!
+            await ctx.send('You have won with {} guesses'.format(guesses))
+            break
+
+        while True:
+
+            await ctx.send('Guess a letter!')
+            answer = await client.wait_for('message',check= lambda message : message.author == ctx.author)
+            guesses += 1
+            answer = answer.content
+            if not answer.isalpha() or len(answer) > 1:
+                ## invalid input
+                await ctx.send('invalid input')
+                continue
+            else:
+                break
+
+        for i in range(len(the_guess_word)):
+            if the_guess_word[i] == answer:
+                empty_word[i] = answer
+
+
+
+
+
+
+
+
+
 
 
 
