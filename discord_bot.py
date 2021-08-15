@@ -4153,6 +4153,7 @@ def sort_cards(card):
 
 @client.command(aliases=['99'])
 async def ninety_nine(ctx):
+    spec_cards = {'Jack': 11, 'Queen': 12}
 
     """
 
@@ -4174,101 +4175,175 @@ async def ninety_nine(ctx):
 
     ## displayed rules, now deal cards
 
-    await ctx.send('\nShuffling deck\n')
-
-    deck = generate_deck()
-
-    for i in range(7):
-        deck = shuffle(deck)
-    ## split deck to each player
-
-    player_hand = []
-    computer_hand = []
-
-    for i in range(len(deck)//2):
-        card,deck = deal(deck)
-        player_hand.append(card)
-    for i in range(len(deck)):
-        card,deck = deal(deck)
-        computer_hand.append(card)
-
-    player_hand = sorted(player_hand, key = sort_cards)
-
-    ### deck has been split
-
-    total_points = 0
-
-    cards_at_disposal = {}
-
     while True:
-        ## main game loop
+        await ctx.send('Beginning game')
 
-        await ctx.send('\nTotal points : {}\n'.format(total_points))
+        await ctx.send('\nShuffling deck\n')
 
-        ## generate player cards at their disposal
-        for eachcard in player_hand:
-            rank = eachcard.split(' ')[0]
-            if rank not in cards_at_disposal:
-                cards_at_disposal[rank] = 1
-            else:
-                cards_at_disposal[rank] = cards_at_disposal[rank] + 1
-        ## collected cards at disposal
-        disposal_string = '--- CARDS AT DISPOSAL : {}---\n'.format(len(player_hand))
-        for eachkey in cards_at_disposal:
-            disposal_string += '{} : {}\n'.format(eachkey,cards_at_disposal[eachkey])
-        await ctx.send(disposal_string)
+        deck = generate_deck()
 
-        while True:
-            await ctx.send('\nEnter card to play\n')
-            answer = await client.wait_for('message',check= lambda message: message.author == ctx.author)
-            answer = answer.content
-            if answer not in cards_at_disposal:
-                ## invalid answer
-                await ctx.send('invalid answer')
-            else:
-                break
+        for i in range(7):
+            deck = shuffle(deck)
+        ## split deck to each player
 
-        card_list = [x for x in player_hand if answer in x]
-        player_hand.remove(card_list[0])
+        player_hand = []
+        computer_hand = []
+
+        for i in range(len(deck)//2):
+            card,deck = deal(deck)
+            player_hand.append(card)
+        for i in range(len(deck)):
+            card,deck = deal(deck)
+            computer_hand.append(card)
+
+        player_hand = sorted(player_hand, key = sort_cards)
+
+        ### deck has been split
+
+        total_points = 0
+
         cards_at_disposal = {}
 
-        if answer == '4':
-            await ctx.send('{} passes with playing 4!'.format(ctx.message.author.mention))
-        elif answer == '9':
-            await ctx.send('{} passes with playing 9!'.format(ctx.message.author.mention))
-        elif answer == '10':
-            await ctx.send('{} reduces the total by 10 points by playing 10!'.format(ctx.message.author.mention))
-            if total_points < 10:
-                total_points = 0
-            else:
-                total_points -= 10
-        elif answer == 'King':
-            await ctx.send('{} takes the total immediately to 99 by playing King!'.format(ctx.message.author.mention))
-            total_points = 99
-        elif answer == 'Ace':
-            ## check if user wants to play 1 or 11
-            while True:
-                await ctx.send('\nEnter 1 or 11 to play the ace with that point value')
-                answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
-                answer = answer.content
-                try:
-                    answer = int(answer)
-                    if answer != 1 and answer != 11:
-                        await ctx.send('\nInvalid answer\n')
-                    else:
-                        if answer == 1:
-                            await ctx.send('\n{} plays ace with a point value of 1!'.format(ctx.message.author.mention))
-                            total_points += 1
-                        else:
-                            await ctx.send('\n{} plays ace with a point value of 11!'.format(ctx.message.author.mention))
-                            total_points += 11
-                except Exception as e:
-                    ## invalid answer
-                    await ctx.send("\nInvalid answer\n")
-        else:
-            total_points += int(answer)
+        while True:
+            ## main game loop
 
-        print('here')
+            await ctx.send('\nTotal points : {}\n'.format(total_points))
+
+            ## generate player cards at their disposal
+            for eachcard in player_hand:
+                rank = eachcard.split(' ')[0]
+                if rank not in cards_at_disposal:
+                    cards_at_disposal[rank] = 1
+                else:
+                    cards_at_disposal[rank] = cards_at_disposal[rank] + 1
+            ## collected cards at disposal
+            disposal_string = '--- CARDS AT DISPOSAL : {}---\n'.format(len(player_hand))
+            for eachkey in cards_at_disposal:
+                disposal_string += '{} : {}\n'.format(eachkey,cards_at_disposal[eachkey])
+            await ctx.send(disposal_string)
+
+            while True:
+                await ctx.send('\nEnter card to play\n')
+                answer = await client.wait_for('message',check= lambda message: message.author == ctx.author)
+                answer = answer.content
+                if answer not in cards_at_disposal:
+                    ## invalid answer
+                    await ctx.send('invalid answer')
+                else:
+                    break
+
+            card_list = [x for x in player_hand if answer in x]
+            player_hand.remove(card_list[0])
+            cards_at_disposal = {}
+
+            if answer == '4':
+                await ctx.send('{} passes with playing 4!'.format(ctx.message.author.mention))
+            elif answer == '9':
+                await ctx.send('{} passes with playing 9!'.format(ctx.message.author.mention))
+            elif answer == '10':
+                await ctx.send('{} reduces the total by 10 points by playing 10!'.format(ctx.message.author.mention))
+                if total_points < 10:
+                    total_points = 0
+                else:
+                    total_points -= 10
+            elif answer == 'King':
+                await ctx.send('{} takes the total immediately to 99 by playing King!'.format(ctx.message.author.mention))
+                total_points = 99
+            elif answer == 'Ace':
+                ## check if user wants to play 1 or 11
+                while True:
+                    await ctx.send('\nEnter 1 or 11 to play the ace with that point value')
+                    answer = await client.wait_for('message',check=lambda message: message.author == ctx.author)
+                    answer = answer.content
+                    try:
+                        answer = int(answer)
+                        if answer != 1 and answer != 11:
+                            await ctx.send('\nInvalid answer\n')
+                        else:
+                            if answer == 1:
+                                await ctx.send('\n{} plays ace with a point value of 1!'.format(ctx.message.author.mention))
+                                total_points += 1
+                            else:
+                                await ctx.send('\n{} plays ace with a point value of 11!'.format(ctx.message.author.mention))
+                                total_points += 11
+                    except Exception as e:
+                        ## invalid answer
+                        await ctx.send("\nInvalid answer\n")
+            else:
+                total_points += int(answer)
+
+            await ctx.send('\nComputer turn\n')
+
+            """
+            Save 4's and 10's, go for King's immediately, save Ace's, if no kings available, go for number cards not 4s, 10s, and Aces
+            
+            """
+
+            num_fours = [x for x in computer_hand if '4' in x]
+            num_tens = [x for x in computer_hand if '10' in x]
+            num_kings = [x for x in computer_hand if 'King' in x]
+            num_aces = [x for x in computer_hand if 'Ace' in x]
+            num_nums = [x for x in computer_hand if '4' not in x and '10' not in x and 'King' not in x and 'Ace' not in x]
+            found_num_card = False
+
+            if len(num_kings) > 0:
+                ## play king
+                await ctx.send('\nComputer plays King! Total goes to 99')
+                total_points = 99
+                computer_hand.remove(num_kings[0])
+            elif len(num_nums) > 0 and total_points != 99:
+                ## play number card, randomly place
+                for i in range(len(num_nums)):
+                    found_num_card = False
+                    card = num_nums[i]
+                    rank = card.split(' ')[0]
+                    if rank in spec_cards:
+                        play_value = spec_cards[rank]
+                    else:
+                        play_value = int(rank)
+                    if total_points + play_value <= 99:
+                        ## valid card
+                        total_points += play_value
+                        found_num_card = True
+                        computer_hand.remove(card)
+                        break
+                if not found_num_card and len(num_kings) == 0 and len(num_fours) == 0 and len(num_tens) == 0:
+                    if len(num_aces) > 0:
+                        ## verify if ace is applicable
+                        print('')
+                    else:
+                        ## no aces, no valid cards
+                        ## player wins
+                        await ctx.send('\nPlayer wins!\n')
+                        break ## begin another round
+                else:
+                    total_points += play_value
+                    computer_hand.remove(card)
+            elif len(num_fours) > 0:
+                ## play four card
+                rand_card = random.choice(num_fours)
+                computer_hand.remove(rand_card)
+                await ctx.send('\nComputer skips turn via playing 4')
+            elif len(num_tens) > 0:
+                ## play ten card
+                rand_card = random.choice(num_tens)
+                computer_hand.remove(rand_card)
+                await ctx.send('\nComputer skips turn via playing 10')
+            elif len(num_aces) > 0:
+                ## play ace
+                if total_points + 11 <= 99:
+                    ## play 11
+                    rand_card = random.choice(num_aces)
+                    total_points += 11
+                    computer_hand.remove(rand_card)
+                    await ctx.send('\nComputer decided to play ace with point value of 11')
+                elif total_points + 1 <= 99:
+                    ## play 1
+                    rand_card = random.choice(num_aces)
+                    total_points += 1
+                    computer_hand.remove(rand_card)
+                    await ctx.send('\nComputer decided to play ace as 1 point value')
+
 
 
 
