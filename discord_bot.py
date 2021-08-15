@@ -4182,7 +4182,7 @@ async def ninety_nine(ctx):
 
         deck = generate_deck()
 
-        for i in range(7):
+        for i in range(random.randint(7,50)):
             deck = shuffle(deck)
         ## split deck to each player
 
