@@ -4303,9 +4303,7 @@ async def ninety_nine(ctx):
                         play_value = int(rank)
                     if total_points + play_value <= 99:
                         ## valid card
-                        total_points += play_value
                         found_num_card = True
-                        computer_hand.remove(card)
                         break
                 if not found_num_card and len(num_kings) == 0 and len(num_fours) == 0 and len(num_tens) == 0:
                     if len(num_aces) > 0:
@@ -4317,6 +4315,7 @@ async def ninety_nine(ctx):
                         await ctx.send('\nPlayer wins!\n')
                         break ## begin another round
                 else:
+                    print('card = {}'.format(card))
                     total_points += play_value
                     computer_hand.remove(card)
             elif len(num_fours) > 0:
@@ -4343,6 +4342,11 @@ async def ninety_nine(ctx):
                     total_points += 1
                     computer_hand.remove(rand_card)
                     await ctx.send('\nComputer decided to play ace as 1 point value')
+                else:
+                    ## player wins!
+                    await ctx.send('Player wins!')
+                    player_wins += 1
+                    break
 
 
 
